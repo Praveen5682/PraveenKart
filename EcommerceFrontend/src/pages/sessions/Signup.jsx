@@ -32,7 +32,7 @@ const Signup = () => {
     fullName: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirmpassword: "",
   });
   const [profileImage, setProfileImage] = useState(null);
 
@@ -57,7 +57,7 @@ const Signup = () => {
       fullName: formData.fullName,
       email: formData.email,
       password: formData.password,
-      confirmPassword: formData.confirmPassword,
+      confirmpassword: formData.confirmpassword,
     };
 
     mutation.mutate(registrationData);
@@ -103,12 +103,12 @@ const Signup = () => {
             aria-label="Password"
           />
           <input
-            name="confirmPassword"
-            id="confirmPassword"
+            name="confirmpassword"
+            id="confirmpassword"
             placeholder="Confirm Password"
             className="bg-gray-100 text-gray-800 border-0 rounded-md p-2 mb-4 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150"
             type="password"
-            value={formData.confirmPassword}
+            value={formData.confirmpassword}
             onChange={handleChange}
             aria-label="Confirm Password"
           />
