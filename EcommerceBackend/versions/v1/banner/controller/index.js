@@ -1,4 +1,4 @@
-const Joi = require("joi");
+const Joi = require("Joi");
 const service = require("../model/index");
 
 module.exports.createBanner = async (req, res) => {

@@ -3,6 +3,9 @@
 const express = require("express");
 const router = express.Router();
 
+// auth
+router.use("/auth", require("../versions/v1/auth/router/index"));
+
 //product
 router.use(
   "/product",
