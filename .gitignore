@@ -1,0 +1,70 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports
+report.*.json
+
+# Dependency directories
+EcommerceFrontend/node_modules/
+EcommerceBackend/node_modules/
+
+# Build output
+EcommerceFrontend/build/
+EcommerceBackend/dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+EcommerceFrontend/.env
+EcommerceBackend/.env
+
+# Coverage and testing
+coverage/
+*.lcov
+.nyc_output
+
+# Cache
+.cache/
+.parcel-cache
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_*/
+.pnp.*
+node_modules/
+*.tsbuildinfo
+
+# REPL/History
+.node_repl_history
+
+# Misc
+*.tgz
+.yarn-integrity
+.vscode-test/
+
+# Optional tools (commented, remove if not used)
+# jspm_packages/
+# web_modules/
+# .docusaurus/
+# .serverless/
+# .fusebox/
+# .dynamodb/
+# .tern-port
+
+
+# VS Code config
+.vscode/
