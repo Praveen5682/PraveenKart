@@ -30,8 +30,8 @@ const Section1 = () => {
 
   const navigate = useNavigate();
 
-  const handleNavigateToProductDetails = (productid) => {
-    navigate(`/product-details/${productid}`);
+  const handleNavigateToProduct = (productid) => {
+    navigate(`/products/${productid}`);
   };
 
   return (
@@ -55,7 +55,7 @@ const Section1 = () => {
               <div
                 key={subCat.id}
                 className="relative"
-                onClick={() => handleNavigateToProductDetails(subCat.id)}
+                onClick={() => handleNavigateToProduct(subCat.id)}
               >
                 {/* Heart Icon for Wishlist */}
                 <div className="absolute z-10 top-2 right-2 p-3 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-200">

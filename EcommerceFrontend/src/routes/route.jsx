@@ -15,6 +15,7 @@ import SubCategory from "../pages/adminPanel/products/SubCategory";
 import AddSpecifications from "../pages/adminPanel/products/AddSpecifications";
 import Banner from "../pages/adminPanel/banner/Banner";
 import SubCategoryPageView from "../page-sections/sub-category.jsx/page-view";
+import ProductsPage from "../pages/products";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: "forget-password", element: <ForgetPassword /> },
       { path: "cart", element: <Cart /> },
       { path: "SubCategory/:categoryid", element: <SubCategoryPageView /> },
+      { path: "products/:subcategoryid", element: <ProductsPage /> },
     ],
   },
 

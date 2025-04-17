@@ -33,7 +33,7 @@ module.exports.createProduct = async (props) => {
     }
 
     // **2️⃣ Start Transaction**
-    const result = await db(async (trx) => {
+    const result = await db.transaction(async (trx) => {
       // **Insert Product**
       const [insertedProductId] = await trx("products").insert({
         productname: upperproductname,
@@ -107,7 +107,7 @@ module.exports.createProduct = async (props) => {
         code: 201,
         status: true,
         message: "Product created successfully!",
-        product: productDetails,
+        data: productDetails,
       };
     });
 
