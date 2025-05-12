@@ -29,7 +29,7 @@
 - 🛒 Add to cart / Remove from cart
 - 📦 Order summary
 - 🧾 API-based architecture
-- 📧 (Optional) Email integration via Nodemailer or EmailJS
+- 📧 Email integration via Nodemailer
 
 ---
 
