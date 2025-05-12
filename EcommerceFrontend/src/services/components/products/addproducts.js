@@ -8,9 +8,9 @@ export async function addProduct(productData) {
       productData,
       {
         headers: {
-          "Content-Type": "multipart/form-data", // Tell the server that this is a form-data request
+          "Content-Type": "multipart/form-data",
         },
-      }
+      } // No need to set Content-Type manually
     );
     return response.data; // Return the server response
   } catch (error) {

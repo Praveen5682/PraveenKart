@@ -33,4 +33,8 @@ router.use(
   require("../versions/v1/specifications/router/index")
 );
 
+// add to cart
+
+router.use("/cart", require("../versions/v1/cart/router/index"));
+
 module.exports = router;

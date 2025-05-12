@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("../controller/index");
-const upload = require("../../../../config/multer"); // Import Multer
+const upload = require("../../../../middleware/multer");
 
 router.post(
   "/CreateSubCategory",
@@ -10,7 +10,7 @@ router.post(
 );
 
 // Route to get all Sub categories
-router.get("/getSubcategory", controller.getSubCategory);
+router.post("/getSubcategory", controller.getSubCategoryController);
 
 // Delete Sub categories
 router.delete("/deleteSubcategory", controller.deleteSubCategoryById);

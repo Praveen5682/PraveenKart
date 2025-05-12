@@ -36,7 +36,7 @@ const Section1 = () => {
 
   return (
     <div className="py-20">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 mt-10">
         <p className="text-center pb-10 text-3xl">Sub Category</p>
 
         {isLoading ? (
@@ -66,7 +66,7 @@ const Section1 = () => {
                     src={IMG_URL + "/uploads/" + subCat.subcategoryimage}
                     alt={subCat.subcategoryname}
                     crossOrigin="anonymous"
-                    className="w-[300px] h-[350px] object-cover mx-auto transform transition duration-500 hover:scale-110"
+                    className="w-[300px] h-[350px] object-cover mx-auto transform transition duration-500 "
                   />
                 </div>
                 <div>

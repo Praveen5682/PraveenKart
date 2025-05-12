@@ -21,7 +21,7 @@ const Signup = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        toast.error(error.response.data.message); // Display server-side error message
+        toast.error(error.response.data.message);
       } else {
         toast.error("Registration failed. Please try again.");
       }
@@ -29,12 +29,26 @@ const Signup = () => {
   });
 
   const [formData, setFormData] = useState({
+    profileImage: "",
     fullName: "",
     email: "",
+    gender: 0,
     password: "",
     confirmpassword: "",
   });
-  const [profileImage, setProfileImage] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      console.log("file", file);
+
+      setFormData((prev) => ({
+        ...prev,
+        profileImage: URL.createObjectURL(file),
+      }));
+    }
+  };
 
   // Handle input changes
   const handleChange = (e) => {
@@ -43,23 +57,26 @@ const Signup = () => {
   };
 
   // Handle profile image upload
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfileImage(URL.createObjectURL(file)); // Preview image
-    }
-  };
+  // const handleImageUpload = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setProfileImage(URL.createObjectURL(file)); // Preview image
+  //   }
+  // };
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     const registrationData = {
+      profileimage: formData.profileImage,
       fullName: formData.fullName,
+      gender: formData.gender,
       email: formData.email,
       password: formData.password,
       confirmpassword: formData.confirmpassword,
     };
 
+    console.log("registrationData", registrationData);
     mutation.mutate(registrationData);
   };
 
@@ -71,7 +88,13 @@ const Signup = () => {
         </h2>
         <form className="flex flex-col" onSubmit={handleSubmit}>
           {/* Profile Image Upload */}
-
+          <input
+            type="file"
+            name="profileimage"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="mb-4"
+          />
           <input
             name="fullName"
             id="fullName"
@@ -82,6 +105,18 @@ const Signup = () => {
             onChange={handleChange}
             aria-label="Full Name"
           />
+
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="bg-gray-100 text-gray-800 border-0 rounded-md p-2 mb-4"
+          >
+            <option value="">Select Gender</option>
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+          </select>
+
           <input
             name="email"
             id="email"

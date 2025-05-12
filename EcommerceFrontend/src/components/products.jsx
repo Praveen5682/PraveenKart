@@ -6,29 +6,6 @@ import { getProduct } from "../services/components/products/getProduct";
 
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
-const dummySubcategories = [
-  {
-    id: 1,
-    subcategoryname: "Modern Sofa",
-    subcategoryimage: "sofa.jpg",
-  },
-  {
-    id: 2,
-    subcategoryname: "Wooden Chair",
-    subcategoryimage: "chair.jpg",
-  },
-  {
-    id: 3,
-    subcategoryname: "Dining Table",
-    subcategoryimage: "dining.jpg",
-  },
-  {
-    id: 4,
-    subcategoryname: "Bookshelf",
-    subcategoryimage: "bookshelf.jpg",
-  },
-];
-
 const Products = () => {
   const { subcategoryid } = useParams();
   console.log("subcategoryid", subcategoryid);
@@ -64,7 +41,8 @@ const Products = () => {
               </div>
               <div className="cursor-pointer overflow-hidden">
                 <img
-                  src={`${IMG_URL}/uploads/${prod?.thumbnailimage}`}
+                  src={`${IMG_URL}/uploads/${prod?.productimages[0].defaultimage}`}
+                  crossOrigin="anonymous"
                   alt={prod.productname}
                   className="w-[300px] h-[350px] object-cover mx-auto transform transition duration-500 hover:scale-110"
                 />

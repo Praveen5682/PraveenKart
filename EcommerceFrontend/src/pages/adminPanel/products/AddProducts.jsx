@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getProductCategory } from "../../../services/components/category/getproductcategory";
 import { getSubCategory } from "../../../services/components/Subcategory/getSubCategory";
@@ -6,47 +6,72 @@ import { getSpecification } from "../../../services/components/specification/get
 import { addProduct } from "../../../services/components/products/addproducts";
 import ImageUploader from "../../../components/ImageUploader";
 import ThumbnailUploader from "../../../components/ThumbnailUploader";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const AddProducts = () => {
+  // State for the product form
   const [productData, setProductData] = useState({
-    category: "",
-    subcategory: "",
+    productcategoryid: "",
+    productsubcategoryid: "",
     productName: "",
     price: "",
     offer: "",
     gst: "0",
     description: "",
-    thumbnail: null,
-    video: null,
+    // thumbnailimage: null,
+    productimages: [],
     specifications: [{ spec: "", details: "" }],
   });
 
-  // Mutation to create product
+  const {
+    productName,
+    description,
+    productcategoryid,
+    productsubcategoryid,
+    specifications,
+    price,
+    offer,
+    gst,
+    // thumbnailimage,
+    productimages,
+  } = productData;
+
+  // Mutation for adding the product
   const createProductMutation = useMutation({
     mutationFn: addProduct,
     onSuccess: (data) => {
-      if (data.status) {
+      console.log(data); // Check if data contains the expected message property
+      if (data && data.message) {
         toast.success(data.message);
         resetForm();
       } else {
-        toast.error(data.message);
+        toast.error("Something went wrong!");
       }
     },
     onError: (error) => {
+      console.error(error); // Log the error to see what goes wrong
       toast.error("Something went wrong!");
     },
   });
 
-  // React Query for fetching options
+  // Effect to reset subcategory when category changes
+  useEffect(() => {
+    setProductData((prev) => ({ ...prev, productsubcategoryid: "" }));
+  }, [productcategoryid]);
+
+  // Fetch data for categories, subcategories, and specifications using react-query
   const { data: categoriesData } = useQuery({
     queryKey: ["allcategories"],
     queryFn: getProductCategory,
   });
 
   const { data: subcategoriesData } = useQuery({
-    queryKey: ["allsubcategories"],
-    queryFn: getSubCategory,
+    queryKey: ["subcategories", productcategoryid],
+    queryFn: () =>
+      getSubCategory({
+        parent_category_id: Number(productcategoryid),
+      }),
+    enabled: !!productcategoryid,
   });
 
   const { data: specificationsData } = useQuery({
@@ -54,21 +79,25 @@ const AddProducts = () => {
     queryFn: getSpecification,
   });
 
+  // Extract the data from query responses
   const categories = categoriesData?.data || [];
   const subCategories = subcategoriesData?.data || [];
   const specificationOptions = specificationsData?.data || [];
 
+  // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProductData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle specification changes
   const handleSpecChange = (index, field, value) => {
-    const updatedSpecs = [...productData.specifications];
+    const updatedSpecs = [...specifications];
     updatedSpecs[index][field] = value;
-    setProductData({ ...productData, specifications: updatedSpecs });
+    setProductData((prev) => ({ ...prev, specifications: updatedSpecs }));
   };
 
+  // Add a new specification
   const addSpecification = () => {
     setProductData((prev) => ({
       ...prev,
@@ -76,42 +105,100 @@ const AddProducts = () => {
     }));
   };
 
+  // Remove a specification
   const removeSpecification = (index) => {
-    const updated = productData.specifications.filter((_, i) => i !== index);
-    setProductData((prev) => ({ ...prev, specifications: updated }));
+    const updatedSpecs = specifications.filter((_, i) => i !== index);
+    setProductData((prev) => ({ ...prev, specifications: updatedSpecs }));
   };
 
+  // Handle thumbnail image upload
   const handleThumbnailUpload = (file) => {
-    setProductData((prev) => ({ ...prev, thumbnail: file }));
+    if (file && file instanceof File) {
+      setProductData((prev) => ({ ...prev, thumbnailimage: file }));
+    } else {
+      console.error("Thumbnail upload failed, no valid file selected.");
+    }
   };
 
-  const handleImagesUpload = (files) => {
-    setProductData((prev) => ({ ...prev, images: files }));
+  // Handle product images upload
+  // Handle product images upload
+  const handleImagesUpload = (e) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length > 0) {
+      const newFiles = files.map((file) => ({
+        id: Date.now() + Math.random(), // Unique ID for each file
+        file,
+        preview: URL.createObjectURL(file),
+      }));
+
+      setProductData((prev) => ({
+        ...prev,
+        productimages: [
+          ...prev.productimages,
+          ...newFiles.filter(
+            (newFile) =>
+              !prev.productimages.some(
+                (existingFile) => existingFile.file.name === newFile.file.name
+              )
+          ),
+        ],
+      }));
+    }
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const payload = {
-      ...productData,
-      productcategoryid: productData.category,
-      productsubcategoryid: productData.subcategory,
-    };
+    // Create a new FormData instance
+    const formData = new FormData();
 
-    createProductMutation.mutate(payload);
+    // Append non-file fields
+    formData.append("productcategoryid", productcategoryid);
+    formData.append("productsubcategoryid", productsubcategoryid);
+    formData.append("productname", productName);
+    formData.append("productdescription", description);
+    formData.append("productprice", price);
+    formData.append("productoffer", offer);
+    formData.append("productgst", gst);
+
+    // Append specifications
+    specifications.forEach((spec, index) => {
+      formData.append(
+        `productspecification[${index}][productspecificationid]`,
+        spec.spec
+      );
+      formData.append(
+        `productspecification[${index}][productspecificationdescription]`,
+        spec.details
+      );
+    });
+
+    // Append images
+    if (productimages.length > 0) {
+      productimages.forEach((file) => {
+        formData.append("productimages", file.file); // Append each image file
+      });
+    }
+
+    // Append the thumbnail image
+
+    // Make sure you're sending it as formData and not as JSON
+    createProductMutation.mutate(formData);
   };
 
+  // Reset the form
   const resetForm = () => {
     setProductData({
-      category: "",
-      subcategory: "",
+      productcategoryid: "",
+      productsubcategoryid: "",
       productName: "",
       price: "",
       offer: "",
       gst: "0",
       description: "",
-      thumbnail: null,
-      video: null,
+      // thumbnailimage: null,
+      productimages: [],
       specifications: [{ spec: "", details: "" }],
     });
   };
@@ -123,77 +210,81 @@ const AddProducts = () => {
       </h2>
 
       <form onSubmit={handleSubmit}>
+        {/* Category and Subcategory */}
         <div className="grid grid-cols-2 gap-4">
           <select
-            name="category"
-            value={productData.category}
+            name="productcategoryid"
+            value={productcategoryid}
             onChange={handleChange}
             className="p-2 border rounded-md"
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat.productcategoryid} value={cat.productcategoryid}>
+              <option key={cat.id} value={cat.id}>
                 {cat.productcategoryname}
               </option>
             ))}
           </select>
 
           <select
-            name="subcategory"
-            value={productData.subcategory}
+            name="productsubcategoryid"
+            value={productsubcategoryid}
             onChange={handleChange}
             className="p-2 border rounded-md"
+            disabled={!productcategoryid}
           >
             <option value="">Select Subcategory</option>
             {subCategories.map((sub) => (
-              <option
-                key={sub.productsubcategoryid}
-                value={sub.productsubcategoryid}
-              >
+              <option key={sub.id} value={sub.id}>
                 {sub.subcategoryname}
               </option>
             ))}
           </select>
 
+          {/* Product Name */}
           <input
             type="text"
             name="productName"
-            value={productData.productName}
+            value={productName}
             onChange={handleChange}
             placeholder="Product Name *"
             className="p-2 border rounded-md col-span-2"
           />
 
+          {/* Price */}
           <input
             type="number"
             name="price"
-            value={productData.price}
+            value={price}
             onChange={handleChange}
             placeholder="Price"
             className="p-2 border rounded-md"
           />
 
+          {/* Offer */}
           <input
             type="number"
             name="offer"
-            value={productData.offer}
+            value={offer}
             onChange={handleChange}
             placeholder="Offer"
             className="p-2 border rounded-md"
           />
 
+          {/* GST */}
           <input
             type="number"
             name="gst"
-            value={productData.gst}
+            value={gst}
             onChange={handleChange}
             placeholder="GST %"
             className="p-2 border rounded-md"
           />
 
+          {/* Description */}
           <textarea
             name="description"
-            value={productData.description}
+            value={description}
             onChange={handleChange}
             placeholder="Product Description"
             className="p-2 border rounded-md col-span-2"
@@ -202,7 +293,7 @@ const AddProducts = () => {
 
         {/* Specifications */}
         <h3 className="text-lg font-bold mt-6">Specifications</h3>
-        {productData.specifications.map((specItem, index) => (
+        {specifications.map((specItem, index) => (
           <div key={index} className="flex gap-4 mt-2">
             <select
               value={specItem.spec}
@@ -211,10 +302,7 @@ const AddProducts = () => {
             >
               <option value="">Specification</option>
               {specificationOptions.map((spec) => (
-                <option
-                  key={spec.specificationName}
-                  value={spec.specificationName}
-                >
+                <option key={spec.specificationid} value={spec.specificationid}>
                   {spec.specificationName}
                 </option>
               ))}
@@ -240,6 +328,7 @@ const AddProducts = () => {
           </div>
         ))}
 
+        {/* Button to add more specifications */}
         <button
           type="button"
           onClick={addSpecification}
@@ -249,27 +338,36 @@ const AddProducts = () => {
         </button>
 
         {/* Uploads */}
-        <div className="mt-6 space-y-4">
-          <ThumbnailUploader onUpload={handleThumbnailUpload} />
-          <div className="border-2 border-dashed p-6 text-center text-gray-500 rounded-md">
-            <ImageUploader onUpload={handleImagesUpload} />
-          </div>
+        <div className="border-2 border-dashed p-6 text-center text-gray-500 rounded-md">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImagesUpload} // Handle the image file change
+            className="w-full p-2 border rounded-md"
+          />
+
+          {/* Show preview if image is selected */}
+          {productimages.length > 0 && (
+            <div className="mt-4">
+              {productimages.map((file, index) => (
+                <img
+                  key={index}
+                  src={file.preview}
+                  alt={`Preview-${index}`}
+                  className="w-24 h-24 object-cover rounded-md border"
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-4 mt-6">
+        {/* Submit Button */}
+        <div className="mt-6">
           <button
             type="submit"
-            className="bg-yellow-600 text-white px-6 py-2 rounded-md"
+            className="bg-blue-600 text-white p-3 rounded-md w-full"
           >
-            Create New Product
-          </button>
-          <button
-            type="button"
-            onClick={resetForm}
-            className="bg-gray-400 text-white px-6 py-2 rounded-md"
-          >
-            Cancel
+            Create Product
           </button>
         </div>
       </form>

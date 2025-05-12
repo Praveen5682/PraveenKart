@@ -50,9 +50,11 @@ module.exports.createSubCategory = async (req, res) => {
   }
 };
 
-module.exports.getSubCategory = async (req, res) => {
+module.exports.getSubCategoryController = async (req, res) => {
   try {
-    const result = await service.getSubCategory(); // Call correct function
+    const { parent_category_id } = req.body;
+
+    const result = await service.getSubCategory(parent_category_id);
 
     if (!result.success) {
       return res.status(400).json({ success: false, message: result.error });

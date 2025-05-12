@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useState } from "react";
 import {
   FaChartBar,
@@ -32,8 +32,26 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 
-const Sidebar = ({ onLogout }) => {
+const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleAdminLogout = () => {
+    // Check if the token exists in localStorage
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      // If the token doesn't exist, the user is already logged out
+      alert("You are already logged out");
+    } else {
+      // If the token exists, proceed with logout
+
+      navigate("/login");
+      toast.success("Admin Logged out successfully");
+    }
+  };
+
   return (
     <div className="w-72 bg-white text-gray-900 shadow-lg h-screen p-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
       {/* Logo */}
@@ -237,7 +255,7 @@ const Sidebar = ({ onLogout }) => {
       {/* Logout */}
       <div className="mt-6 px-0">
         <button
-          onClick={onLogout}
+          onClick={handleAdminLogout}
           className="flex items-center w-full px-4 py-3 text-lg font-medium  rounded-lg bg-red-500  text-white 
                hover:bg-red-700 hover:text-white transition duration-200"
         >

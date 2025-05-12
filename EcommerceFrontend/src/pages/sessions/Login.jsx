@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { createLogin } from "../../services/components/auth/logIn";
 import toast from "react-hot-toast";
 import { useAuth } from "../../contexts/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,20 +15,32 @@ const Login = () => {
 
     onSuccess: (data) => {
       console.log("Signin successful:", data);
-      const token = data?.data?.token; // Access token from the response data
+
+      const token = data?.data?.token;
+
+      // Decode the token to get user data
+      const decoded = jwtDecode(token);
+
+      console.log("decoded:", decoded);
+
       const userData = {
-        name: data?.data?.fullName, // or any other user-related fields
-        email: data?.data?.email,
-        roleid: data?.data?.roleId,
-        userid: data?.data?.id,
-        tenantid: data?.data?.configId,
-        // Any other fields you need
+        name: decoded.fullName,
+        email: decoded.email,
+        roleid: decoded.roleId,
+        userid: decoded.id,
+        tenantid: decoded.configId,
       };
+
+      console.log("userData:", userData);
 
       if (token) {
         login(token, userData);
         toast.success("Signed in successfully");
-        navigate("/");
+        if (userData?.roleid === 1) {
+          navigate("/dashboard");
+        } else {
+          navigate("/");
+        }
       } else {
         toast.error("Token not received");
       }

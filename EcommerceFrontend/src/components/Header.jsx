@@ -1,16 +1,37 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { HiMenuAlt4, HiX } from "react-icons/hi";
-import { FiShoppingCart, FiUser } from "react-icons/fi";
+import {
+  FiShoppingCart,
+  FiUser,
+  FiLogIn,
+  FiUserPlus,
+  FiSettings,
+  FiLogOut,
+  FiShoppingBag,
+  FiHeart,
+  FiHome,
+} from "react-icons/fi";
 import toast from "react-hot-toast";
 import getUserDetailsFromToken from "./getUserDetailsFromToken";
+import { useQuery } from "@tanstack/react-query";
+import { getCart } from "../services/components/cart/getCart";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const userid = localStorage.getItem("userid");
+  const roleid = localStorage.getItem("roleid");
 
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["carts", userid],
+    queryFn: () => getCart({ userid }),
+    refetchOnMount: "always",
+  });
+
+  const cartData = data?.data;
   // Mock user data (replace this with actual data from context or props)
   useEffect(() => {
     const userDetails = getUserDetailsFromToken(); // Get user details from token
@@ -45,7 +66,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-black fixed w-full z-20 top-0 start-0 border-b border-gray-700">
+    <nav className="bg-black fixed w-full z-50 top-0 start-0 border-b border-gray-700 ">
       <div className="flex items-center justify-between mx-auto py-4 px-6 md:px-10">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold text-white">
@@ -79,6 +100,14 @@ const Navbar = () => {
           </Link>
           <Link to="/cart" className="relative hover:text-blue-500">
             <FiShoppingCart size={22} />
+            {/* Badge */}
+            {cartData?.length <= 0 ? (
+              ""
+            ) : (
+              <span className="absolute -top-3 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                {cartData?.length}
+              </span>
+            )}
           </Link>
 
           {/* Account with Dropdown */}
@@ -92,49 +121,81 @@ const Navbar = () => {
 
             {/* Dropdown */}
             {accountDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg py-2 z-30">
-                {/* User Profile Info */}
-                <div className="flex items-center px-4 py-2 space-x-3">
+              <div className="absolute right-0 mt-2 w-64 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg py-4 z-30">
+                {/* User Profile Info - Centered */}
+                <div className="flex flex-col items-center px-4 mb-4 border-b border-blue-400 pb-3">
                   <img
-                    src={user?.dp} // User profile picture
+                    src={user?.dp}
                     alt="Profile"
-                    className="w-10 h-10 rounded-full"
+                    className="w-16 h-16 rounded-full border-2 border-white mb-2 shadow-md"
                   />
-                  <div className="flex flex-col">
-                    <span className="text-white text-sm font-semibold">
-                      {user?.fullName}
-                    </span>
-                    <span className="text-white text-sm font-semibold">
-                      {user?.email}
-                    </span>
-                  </div>
+                  <span className="text-white text-base font-semibold">
+                    {user?.fullName}
+                  </span>
+                  <span className="text-white text-sm opacity-90">
+                    {user?.email}
+                  </span>
                 </div>
 
-                {/* Dropdown Links */}
-                <Link
-                  to="/login"
-                  className="block px-4 py-2 text-sm text-white hover:bg-blue-500 rounded-md transition-all duration-300"
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="block px-4 py-2 text-sm text-white hover:bg-blue-500 rounded-md transition-all duration-300"
-                >
-                  Register
-                </Link>
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 text-sm text-white hover:bg-blue-500 rounded-md transition-all duration-300"
-                >
-                  Profile
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block px-4 py-2 text-sm text-white hover:bg-blue-500 rounded-md transition-all duration-300 w-full text-left"
-                >
-                  Logout
-                </button>
+                {/* Dropdown Links with Icons */}
+                <div className="px-4 space-y-2">
+                  {user.roleId === 1 && (
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setAccountDropdownOpen(false)}
+                      className="flex items-center gap-2 text-sm text-white hover:bg-blue-500 rounded-md px-4 py-2 transition-all duration-300"
+                    >
+                      <FiHome /> Admin Dashboard
+                    </Link>
+                  )}
+                  <Link
+                    to="/login"
+                    onClick={() => setAccountDropdownOpen(false)}
+                    className="flex items-center gap-2 text-sm text-white hover:bg-blue-500 rounded-md px-4 py-2 transition-all duration-300"
+                  >
+                    <FiLogIn /> Login
+                  </Link>
+
+                  <Link
+                    to="/signup"
+                    onClick={() => setAccountDropdownOpen(false)}
+                    className="flex items-center gap-2 text-sm text-white hover:bg-blue-500 rounded-md px-4 py-2 transition-all duration-300"
+                  >
+                    <FiUserPlus /> Register
+                  </Link>
+
+                  <Link
+                    to="/profile"
+                    onClick={() => setAccountDropdownOpen(false)}
+                    className="flex items-center gap-2 text-sm text-white hover:bg-blue-500 rounded-md px-4 py-2 transition-all duration-300"
+                  >
+                    <FiSettings /> Profile
+                  </Link>
+                  <Link
+                    to="/profile"
+                    onClick={() => setAccountDropdownOpen(false)}
+                    className="flex items-center gap-2 text-sm text-white hover:bg-blue-500 rounded-md px-4 py-2 transition-all duration-300"
+                  >
+                    <FiShoppingBag /> Orders
+                  </Link>
+                  <Link
+                    to="/profile"
+                    onClick={() => setAccountDropdownOpen(false)}
+                    className="flex items-center gap-2 text-sm text-white hover:bg-blue-500 rounded-md px-4 py-2 transition-all duration-300"
+                  >
+                    <FiHeart /> Wishlist / Saved Items
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setAccountDropdownOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full text-left text-sm text-white hover:bg-blue-500 rounded-md px-4 py-2 transition-all duration-300"
+                  >
+                    <FiLogOut /> Logout
+                  </button>
+                </div>
               </div>
             )}
           </div>

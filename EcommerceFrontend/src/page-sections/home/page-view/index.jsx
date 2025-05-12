@@ -14,8 +14,8 @@ const HomePageView = () => {
       <ShopByCategorySection />
       <NewArrivalsSection />
       <BestSellerSection />
-      <TestimonialSection />
-      <ClientLogoSection />
+      {/* <TestimonialSection />
+      <ClientLogoSection /> */}
     </Fragment>
   );
 };

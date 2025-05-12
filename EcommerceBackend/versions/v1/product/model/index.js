@@ -12,13 +12,11 @@ module.exports.createProduct = async (props) => {
     productgst,
     productimages = [],
     productspecification = [],
-    productvideo = null,
   } = props;
 
   try {
     const upperproductname = productname.toUpperCase();
 
-    // **1️⃣ Check if product already exists**
     const existingProduct = await db("products")
       .whereRaw("UPPER(productname) = ?", [upperproductname])
       .andWhere("productcategoryid", productcategoryid)
@@ -44,7 +42,6 @@ module.exports.createProduct = async (props) => {
         productprice,
         productoffer,
         productgst,
-        productvideo,
       });
 
       console.log("Inserted Product ID:", insertedProductId); // Debugging log
@@ -56,7 +53,10 @@ module.exports.createProduct = async (props) => {
       // **3️⃣ Insert product images**
       if (productimages.length > 0) {
         const mappedImages = productimages.map((imgdata) => ({
-          defaultimage: imgdata,
+          defaultimage: imgdata
+            .replace(/^uploads[\\\/]/, "") // Remove 'uploads/' or 'uploads\' prefix
+            .split(/[\\\/]/)
+            .pop(), // Get only the file name
           productid: insertedProductId,
         }));
 
@@ -65,6 +65,7 @@ module.exports.createProduct = async (props) => {
           console.log("Product images inserted successfully:", mappedImages);
         } catch (error) {
           console.error("Error inserting images:", error);
+          throw error; // This is important to trigger rollback!
         }
       }
 
@@ -138,7 +139,6 @@ module.exports.getProduct = async (props) => {
         "products.productname",
         "products.thumbnailimage",
         "products.productprice",
-        "products.productvideo",
         "products.productoffer",
         "products.productgst",
         "products.productcategoryid",
@@ -147,12 +147,12 @@ module.exports.getProduct = async (props) => {
         "categories.productcategoryname",
         "categories.productcategoryimage",
         "subcategories.id as productsubcategoryid",
-        "subcategories.subcategoryname", // Fixed column name
-        "subcategories.subcategoryimage" // Fixed column name
+        "subcategories.subcategoryname",
+        "subcategories.subcategoryimage"
+        // Removed "products.productimages"
       )
       .orderBy("products.productid", "DESC");
 
-    // Apply dynamic filtering based on provided parameters
     if (productid)
       productsQuery = productsQuery.where("products.productid", productid);
     if (productcategoryid)
@@ -166,48 +166,28 @@ module.exports.getProduct = async (props) => {
         productsubcategoryid
       );
 
-    const response = await productsQuery;
+    const products = await productsQuery;
 
-    // Fetch related data (images, specifications)
+    // Attach product images
     await Promise.all(
-      response.map(async (product) => {
-        try {
-          // Fetch product images
-          const productimages = await db("productimages")
-            .select("productimageid", "defaultimage")
-            .where("productid", product.productid);
-          product.productimages = productimages || [];
+      products.map(async (product) => {
+        const images = await db("productimages")
+          .select("productimageid", "defaultimage")
+          .where("productid", product.productid);
 
-          // Fetch product specifications
-          const productspecification = await db("productspecificationdetails")
-            .leftJoin(
-              "productspecification",
-              "productspecification.productspecificationid",
-              "productspecificationdetails.productspecificationid"
-            )
-            .select(
-              "productspecificationdetails.productspecificationdescription",
-              "productspecification.productspecificationname"
-            )
-            .where("productid", product.productid);
-          product.productspecification = productspecification || [];
-        } catch (err) {
-          console.error(
-            `Error fetching related data for product ${product.productid}:`,
-            err.message
-          );
-          product.productimages = [];
-          product.productspecification = [];
-        }
+        product.productimages = images;
+
+        const defaultImg = images.find((img) => img.defaultimage);
+        product.defaultimage = defaultImg ? defaultImg.defaultimage : null;
       })
     );
 
-    if (response.length > 0) {
+    if (products.length > 0) {
       return {
         code: 200,
         status: true,
         message: "Successfully fetched product data",
-        response,
+        response: products,
       };
     } else {
       return {
@@ -220,7 +200,7 @@ module.exports.getProduct = async (props) => {
   } catch (err) {
     console.error("Error fetching product data:", err.message);
     return {
-      code: 500, // Internal Server Error
+      code: 500,
       status: false,
       message: "Failed to fetch product data",
       response: [],

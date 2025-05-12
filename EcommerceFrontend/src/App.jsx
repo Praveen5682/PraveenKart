@@ -16,7 +16,7 @@ const App = () => {
           },
         }}
       />
-      <Chatbot />
+      {/* <Chatbot /> */}
       <Header />
       <main className="h-auto">
         <Outlet />

@@ -16,6 +16,7 @@ import AddSpecifications from "../pages/adminPanel/products/AddSpecifications";
 import Banner from "../pages/adminPanel/banner/Banner";
 import SubCategoryPageView from "../page-sections/sub-category.jsx/page-view";
 import ProductsPage from "../pages/products";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -36,10 +37,10 @@ const router = createBrowserRouter([
   // Separate Admin Panel
   {
     path: "/dashboard",
-    element: <AdminLayout />, // Admin Layout Wrapper
+    element: <PrivateRoute element={<AdminLayout />} />, // Protect the admin routes
     children: [
       { path: "", element: <Dashboard /> }, // Default admin page
-      { path: "orders", element: "<Orders />" }, // Orders Page
+      { path: "orders", element: " <Orders />" },
       { path: "add-product", element: <AddProducts /> }, // Add Product Page
       { path: "all-products", element: <AllProducts /> }, // Add Product Page
       { path: "categories", element: <Categories /> }, // Add Product Page

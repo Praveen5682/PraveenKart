@@ -1,30 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { getProduct } from "../../../services/components/products/getProduct";
+import Loader from "../../../components/Loader";
 
 const AllProducts = () => {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "iPhone 14",
-      price: 799,
-      category: "Electronics",
-      subcategory: "Mobiles",
-    },
-    {
-      id: 2,
-      name: "MacBook Air",
-      price: 1199,
-      category: "Electronics",
-      subcategory: "Laptops",
-    },
-    {
-      id: 3,
-      name: "Nike Shoes",
-      price: 99,
-      category: "Fashion",
-      subcategory: "Men",
-    },
-  ]);
+  const { data: productsData, isLoading } = useQuery({
+    queryFn: () => getProduct(),
+    queryKey: ["allproducts"],
+  });
+
+  const products = productsData?.response;
+  console.log("Products:", products);
 
   const handleEdit = (id) => {
     console.log("Edit Product ID:", id);
@@ -37,8 +24,16 @@ const AllProducts = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full text-6xl">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
-    <div className=" mx-auto mt-0 bg-white p-6 h-screen rounded-lg shadow-lg">
+    <div className=" mx-auto mt-0 ">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">
         All Products
       </h2>
@@ -56,14 +51,14 @@ const AllProducts = () => {
             </tr>
           </thead>
           <tbody>
-            {products.length > 0 ? (
-              products.map((product, index) => (
+            {products?.length > 0 ? (
+              products?.map((product, index) => (
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="border p-3">{index + 1}</td>
-                  <td className="border p-3">{product.name}</td>
-                  <td className="border p-3">${product.price}</td>
-                  <td className="border p-3">{product.category}</td>
-                  <td className="border p-3">{product.subcategory}</td>
+                  <td className="border p-3">{product.productname}</td>
+                  <td className="border p-3">${product.productprice}</td>
+                  <td className="border p-3">{product.productcategoryname}</td>
+                  <td className="border p-3">{product.subcategoryname}</td>
                   <td className="border p-3 text-center flex justify-center gap-4">
                     <button
                       onClick={() => handleEdit(product.id)}

@@ -1,309 +1,312 @@
-import React, { Fragment, useState } from "react";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faShareAlt, faStar } from "@fortawesome/free-solid-svg-icons";
 import { useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getProduct } from "../../../services/components/products/getProduct";
+import { addToCart } from "../../../services/components/cart/addToCart";
+import toast from "react-hot-toast";
 
-const product = {
-  title: "Bed Sheet Home Textile Modern",
-  previews: [
-    {
-      previewUrl: "https://cdn.easyfrontend.com/pictures/products/bed1.jpg",
-      thumbUrl: "https://cdn.easyfrontend.com/pictures/products/bed1.jpg",
-    },
-    {
-      previewUrl: "https://cdn.easyfrontend.com/pictures/products/bed3.jpg",
-      thumbUrl: "https://cdn.easyfrontend.com/pictures/products/bed3.jpg",
-    },
-    {
-      previewUrl: "https://cdn.easyfrontend.com/pictures/products/bed2.jpg",
-      thumbUrl: "https://cdn.easyfrontend.com/pictures/products/bed2.jpg",
-    },
-  ],
-  rating: 5.0,
-  rateCount: 3,
-  price: 870.99,
-  colorVariants: [
-    { bgcolor: "bg-yellow-500", value: "Multi" },
-    { bgcolor: "bg-blue-500", value: "Blue" },
-    { bgcolor: "bg-red-400", value: "Pink" },
-    { bgcolor: "bg-black", value: "Black" },
-    { bgcolor: "bg-red-600", value: "Red" },
-  ],
-  sizeVariants: [
-    {
-      label: "18L",
-      value: "18L",
-      content: "Perfect fora a reasonable amount of snacks",
-    },
-    {
-      label: "20L",
-      value: "20L",
-      content: "Perfect fora a reasonable amount of snacks",
-    },
-  ],
-};
+const IMG_URL = import.meta.env.VITE_IMG_URL;
 
-const ProductPreviews = ({ previews }) => {
+const ProductImageGallery = ({ previews = [], imagePath, productName }) => {
   const [index, setIndex] = useState(0);
 
+  const mainImage =
+    previews[index]?.previewUrl ||
+    `${IMG_URL}/uploads/${imagePath?.replace(/\\/g, "/")}`;
+
+  const nextImage = () => {
+    setIndex((prev) => (prev + 1) % previews.length);
+  };
+
+  const prevImage = () => {
+    setIndex((prev) => (prev - 1 + previews.length) % previews.length);
+  };
+
   return (
-    <div className="lg:mr-6">
-      <div className="text-center rounded-lg overflow-hidden m-2">
+    <div className="mt-20 lg:mr-6">
+      <div className="relative w-full text-center mb-6">
         <img
-          src={previews[index].previewUrl}
-          alt=""
-          className="max-h-[450px] object-cover max-w-full w-full"
+          src={mainImage}
+          crossOrigin="anonymous"
+          alt={productName}
+          className="w-[350px] h-[400px] object-cover mx-auto rounded-xl transition duration-500"
         />
+
+        {/* Prev/Next buttons */}
+        {previews.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white border p-2 rounded-full shadow hover:bg-gray-100"
+            >
+              ‹
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white border p-2 rounded-full shadow hover:bg-gray-100"
+            >
+              ›
+            </button>
+          </>
+        )}
       </div>
 
-      <ul className="flex items-center justify-center">
-        {previews.map((preview, i) => (
-          <li
-            className="rounded-lg overflow-hidden m-2"
+      {/* Preview thumbnails */}
+      <div className="flex gap-4 justify-center">
+        {previews.slice(0, 3).map((img, i) => (
+          <div
             key={i}
             onClick={() => setIndex(i)}
+            className={`cursor-pointer border-2 rounded-xl p-1 transition hover:scale-105 ${
+              i === index ? "border-blue-600" : "border-gray-300"
+            }`}
           >
-            <a href="#!">
-              <img
-                src={preview.thumbUrl}
-                alt=""
-                className="w-auto max-h-[100px] object-cover"
-              />
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
-ProductPreviews.propTypes = {
-  previews: PropTypes.array.isRequired,
-};
-
-const ColorVariant = () => {
-  const [selectedColor, setSelectedColor] = useState("Multi");
-
-  const handleColorChange = (value) => {
-    setSelectedColor(value);
-  };
-
-  return (
-    <>
-      <div className="mb-6">
-        <h5 className="font-medium mb-2 text-black">
-          Color:{" "}
-          <span className="opacity-50 text-black">
-            {selectedColor &&
-              product.colorVariants.find(
-                (color) => color.value === selectedColor
-              )?.value}
-          </span>
-        </h5>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {product.colorVariants.map((item, i) => (
-            <Fragment key={i}>
-              <input
-                type="radio"
-                className="absolute hidden"
-                autoComplete="off"
-                checked={selectedColor === item.value}
-                onChange={() => handleColorChange(item.value)}
-              />
-              <label
-                className={`w-8 h-8 rounded-full ${
-                  item.bgcolor
-                } border-2 border-white dark:border-[#0b1727] cursor-pointer mt-1 hover:outline hover:outline-1 hover:outline-${
-                  item.color
-                } ${
-                  selectedColor === item.value &&
-                  `outline outline-1 outline-${item.color}`
-                }`}
-                onClick={() => handleColorChange(item.value)}
-              ></label>
-            </Fragment>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-};
-
-const SizeVariant = () => {
-  const [selectedSize, setSelectedSize] = useState("18L");
-
-  const handleSizeChange = (value) => {
-    setSelectedSize(value);
-  };
-
-  return (
-    <div className="mb-6">
-      <h5 className="text-sm font-medium mb-2">
-        Size:{" "}
-        <span className="opacity-50">
-          {selectedSize &&
-            product.sizeVariants.find((size) => size.label === selectedSize)
-              ?.label}
-        </span>
-      </h5>
-      <div className="flex gap-2 mb-2">
-        {product.sizeVariants.map((size, index) => (
-          <React.Fragment key={size.label}>
-            <input
-              type="radio"
-              className="sr-only"
-              autoComplete="off"
-              checked={selectedSize === size.value}
-              onChange={() => handleSizeChange(size.value)}
+            <img
+              src={img.previewUrl}
+              alt={`preview-${i}`}
+              className="w-[90px] h-[90px] object-cover rounded-lg"
             />
-            <label
-              className={`bg-gray-100 text-black cursor-pointer rounded-md flex flex-col overflow-hidden text-start border-2 border-white dark:border-[#0b1727]  ${
-                selectedSize === size.label &&
-                "outline outline-1 outline-blue-600 dark:outline-blue-600"
-              } hover:outline-blue-600 px-6 py-4`}
-              onClick={() => handleSizeChange(size.value)}
-            >
-              <b className="mb-2">{size.label}</b>
-              <span className="opacity-75 mb-2">{size.content}</span>
-            </label>
-          </React.Fragment>
+          </div>
         ))}
       </div>
     </div>
   );
 };
 
-const QtyField = ({ name, value, onChange }) => {
-  const qtyControl = (qty) =>
-    onChange({
-      target: {
-        name,
-        type: "radio",
-        value: qty < 1 ? 1 : qty,
-      },
-    });
+const ProductTabs = ({
+  specifications = [],
+  description = "",
+  comments = [],
+}) => {
+  const [activeTab, setActiveTab] = useState("description");
 
   return (
-    <div className="flex h-11 w-24 mb-4 ">
-      <input
-        className="w-2/3 pl-2 text-center bg-gray-100 text-black focus:outline-none rounded-lg overflow-hidden font-bold text-lg"
-        type="number"
-        placeholder=""
-        value={value}
-        onChange={(e) => qtyControl(e.target.value)}
-      />
-      <div className="w-1/3 rounded-lg overflow-hidden flex flex-col bg-gray-100  p-0">
+    <div className="mt-16">
+      {/* Tabs */}
+      <div className="flex gap-6 border-b border-gray-200">
         <button
-          className="text-blue-600 hover:bg-blue-600 hover:text-white h-1/2 font-bold leading-none text-lg"
-          type="button"
-          onClick={() => qtyControl(parseInt(value) - 1)}
+          onClick={() => setActiveTab("description")}
+          className={`pb-2 text-lg font-medium ${
+            activeTab === "description"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500"
+          }`}
         >
-          -
+          Description
         </button>
         <button
-          className="text-blue-600 hover:bg-blue-600 hover:text-white h-1/2 font-bold leading-none text-lg"
-          type="button"
-          onClick={() => qtyControl(parseInt(value) + 1)}
+          onClick={() => setActiveTab("specs")}
+          className={`pb-2 text-lg font-medium ${
+            activeTab === "specs"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500"
+          }`}
         >
-          +
+          Specifications
         </button>
+        <button
+          onClick={() => setActiveTab("comments")}
+          className={`pb-2 text-lg font-medium ${
+            activeTab === "comments"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500"
+          }`}
+        >
+          Comments
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === "description" && (
+          <p className="text-gray-700 text-base leading-relaxed">
+            {description}
+          </p>
+        )}
+
+        {activeTab === "specs" && (
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            {specifications.map((spec, index) => (
+              <li key={index}>
+                <strong>{spec.label}: </strong>
+                {spec.value}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {activeTab === "comments" && (
+          <div className="space-y-6">
+            {comments.length === 0 ? (
+              <p className="text-gray-500">No comments available.</p>
+            ) : (
+              comments.map((c, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-4 border border-gray-200 p-4 rounded-lg shadow-sm"
+                >
+                  {/* Profile picture */}
+                  <img
+                    src={c.profile || "https://via.placeholder.com/40"}
+                    alt={c.user}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+
+                  {/* Comment content */}
+                  <div>
+                    <p className="font-semibold text-zinc-800">{c.user}</p>
+                    <p className="text-gray-600 text-sm mt-1">{c.comment}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-QtyField.propTypes = {
-  name: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  value: PropTypes.any,
+const QuantityInput = ({ value, onChange }) => {
+  const updateQty = (qty) => {
+    onChange(Math.max(1, qty));
+  };
+
+  return (
+    <div className="flex items-center gap-3 mb-6">
+      <button
+        className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+        onClick={() => updateQty(value - 1)}
+      >
+        -
+      </button>
+      <input
+        type="number"
+        min="1"
+        className="w-16 text-center bg-gray-100 border border-gray-300 rounded"
+        value={value}
+        onChange={(e) => updateQty(Number(e.target.value))}
+      />
+      <button
+        className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+        onClick={() => updateQty(value + 1)}
+      >
+        +
+      </button>
+    </div>
+  );
 };
 
 const Section1 = () => {
   const { productid } = useParams();
-  console.log("productId From Params", productid);
+  const userid = localStorage.getItem("userid");
+  const queryClient = useQueryClient();
+
   const [formData, setFormData] = useState({
-    color: "Multi",
-    size: "XL",
     qty: 1,
   });
 
-  const setField = (e) => {
-    const { name, value, type, checked } = e.target;
+  const { data: productsData } = useQuery({
+    queryFn: () => getProduct({ productid }),
+    queryKey: ["product", productid],
+  });
 
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+  const product = productsData?.response?.[0];
+
+  const addToCartMutation = useMutation({
+    mutationFn: addToCart, // Your function for adding items to the cart
+    onSuccess: () => {
+      // Show success toast
+      toast.success("Added to cart successfully");
+
+      // Invalidate the 'carts' query to refetch updated data
+      queryClient.invalidateQueries(["carts", userid]);
+    },
+    onError: (err) => {
+      // Show error toast
+      toast.error(err.message);
+    },
+  });
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleAddCart = () => {
+    if (!product) return;
+
+    const payload = {
+      userid,
+      productid,
+      quantity: formData.qty,
+      price_at_add_time: product.productprice,
+    };
+
+    addToCartMutation.mutate(payload);
+  };
+
+  if (!product) return null;
+
   return (
-    <section className="py-14  bg-white  text-zinc-900 dark:text-white relative overflow-hidden z-10">
-      <div className="container px-32 mx-auto">
-        <div className="grid grid-cols-2 gap-6">
-          <div className="col-span-2 lg:col-span-1">
-            <ProductPreviews previews={product.previews} />
-          </div>
-          <div className="col-span-2 lg:col-span-1">
-            <div className="mb-6 lg:mb-12">
-              <h1 className="text-2xl leading-none md:text-4xl font-medium mb-4 text-black">
-                {product.title}
-              </h1>
-              <p className="opacity-70 mb-6 text-black">
-                <span>{product.rating}</span>{" "}
-                <FontAwesomeIcon
-                  icon={faStar}
-                  className="mx-2 text-yellow-500"
-                />
-                <a href="#!" className="text-blue-600 font-medium ml-1">
-                  {product.rateCount} Reviews
-                </a>{" "}
-                <span className="ml-2">104 Order</span>
-              </p>
-              <h3 className="text-2xl text-blue-600 font-medium">
-                {" "}
-                {product.price.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                })}
-              </h3>
+    <section className="py-20 bg-white text-zinc-900">
+      <div className="container mx-auto px-6 lg:px-32">
+        <div className="grid lg:grid-cols-2 gap-14">
+          <ProductImageGallery
+            previews={product.previews || []}
+            imagePath={product?.productimages?.[0]?.defaultimage}
+            productName={product?.productname}
+          />
+
+          <div className="mt-10 lg:mt-20 space-y-6">
+            <h1 className="text-4xl font-semibold text-black">
+              {product.productname}
+            </h1>
+
+            <p className="text-base text-gray-700 leading-relaxed">
+              {product?.productdescription}
+            </p>
+
+            <h3 className="text-3xl text-blue-600 font-bold">
+              Rs. {product.productprice}
+            </h3>
+
+            <div>
+              <h5 className="text-lg font-medium mb-2">Quantity</h5>
+              <QuantityInput
+                value={formData.qty}
+                onChange={(val) => handleChange("qty", val)}
+              />
             </div>
 
-            <form action="#!">
-              <div className="mb-6">
-                <ColorVariant />
-              </div>
-              <div className="mb-6">
-                <SizeVariant />
-              </div>
-              <div className="mb-6">
-                <h5 className="font-medium mb-2">QTY</h5>
-                <QtyField onChange={setField} name="qty" value={formData.qty} />
-              </div>
+            <div className="flex flex-wrap gap-4 items-center">
+              <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition">
+                Buy Now
+              </button>
+              <button
+                className="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
+                onClick={handleAddCart}
+              >
+                Add to Cart
+              </button>
 
-              <div className="flex flex-wrap gap-3 items-center my-7">
-                <button className="bg-blue-600 border border-blue-600 text-white text-sm rounded uppercase hover:bg-opacity-90 px-10 py-2.5 h-10 md:px-12 min-w-[202px]">
-                  Buy Now
-                </button>
-                <button className="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white text-sm rounded uppercase px-6 py-2.5 h-10 md:px-12 min-w-[202px]">
-                  Add To Cart
-                </button>
-                <button className="hover:bg-blue-600 rounded hover:bg-opacity-10 text-blue-600 px-3 py-2 text-lg font-bold">
-                  <FontAwesomeIcon icon={faHeart} />
-                </button>
-                <button className="hover:bg-blue-600 rounded hover:bg-opacity-10 text-blue-600 px-3 py-2 text-lg font-bold">
-                  <FontAwesomeIcon icon={faShareAlt} className="mr-1 text-sm" />
-                </button>
-              </div>
-
-              <p className="opacity-70 lg:mr-56 xl:mr-80 text-black">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                nec consequat lorem. Maecenas elementum at diam consequat
-                bibendum.
-              </p>
-            </form>
+              <button
+                className="flex items-center gap-2 border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
+                // onClick={handleAddWishlist} // define this function
+              >
+                <FontAwesomeIcon icon={faHeart} />
+                <span>Add to Wishlist</span>
+              </button>
+            </div>
           </div>
         </div>
+
+        <ProductTabs
+          description={product?.productdescription}
+          specifications={product?.specifications || []}
+          comments={product?.comments || []}
+        />
       </div>
     </section>
   );

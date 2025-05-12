@@ -7,6 +7,9 @@ module.exports.registration = async (req, res) => {
 
     // ✅ Input validation including roleId and configId
     const schema = Joi.object({
+      profileimage: Joi.string().optional().messages({
+        "string.base": "Profile Image should be a String",
+      }),
       fullName: Joi.string().trim().required().messages({
         "any.required": "fullName is required",
         "string.empty": "fullName cannot be empty",
@@ -14,6 +17,10 @@ module.exports.registration = async (req, res) => {
       email: Joi.string().trim().email().required().messages({
         "any.required": "Email is required",
         "string.email": "Email must be a valid email address",
+      }),
+      gender: Joi.number().required().messages({
+        "any.required": "Gender is required",
+        "number.base": "Gender must be a number",
       }),
       password: Joi.string().min(6).required().messages({
         "any.required": "Password is required",

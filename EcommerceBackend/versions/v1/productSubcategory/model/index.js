@@ -34,14 +34,20 @@ module.exports.createSubCategory = async (props) => {
   }
 };
 
-module.exports.getSubCategory = async () => {
+module.exports.getSubCategory = async (parent_category_id) => {
   try {
-    const subcategories = await db("subcategories").select(
+    let query = db("subcategories").select(
       "id",
       "subcategoryname",
       "subcategoryimage",
       "parent_category_id"
     );
+
+    if (parent_category_id) {
+      query = query.where("parent_category_id", parent_category_id);
+    }
+
+    const subcategories = await query;
 
     return {
       success: true,

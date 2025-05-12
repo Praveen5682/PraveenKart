@@ -117,18 +117,31 @@ const Categories = () => {
   const handleUpdateCategory = async (e) => {
     e.preventDefault();
 
+    if (!editCategoryName.trim()) return alert("Category name is required!");
+
     const formDataUpdate = new FormData();
     formDataUpdate.append("productcategoryname", editCategoryName);
-    if (editImage) formDataUpdate.append("productcategoryimage", editImage);
 
-    // Add the updated category ID
+    if (editImage) {
+      formDataUpdate.append("productcategoryimage", editImage);
+    }
+
+    // ✅ Include category ID for backend to identify what to update
     formDataUpdate.append("id", editCategoryId);
+
+    console.log("Updating Category:", {
+      id: editCategoryId,
+      name: editCategoryName,
+      image: editImage,
+    });
 
     updateProductCategoryMutaion.mutate(formDataUpdate);
 
-    mutate(formData);
-    // Close the edit form
+    // Reset edit states after successful submission
     setEditCategoryId(null);
+    setEditCategoryName("");
+    setEditImage(null);
+    setEditImagePreview(null);
   };
 
   // Handle Delete
