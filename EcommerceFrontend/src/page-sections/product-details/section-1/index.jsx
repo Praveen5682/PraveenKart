@@ -9,6 +9,14 @@ import toast from "react-hot-toast";
 
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
+const specificationsData = [
+  { label: "Material", value: "Stainless Steel" },
+  { label: "Dimensions", value: "20ft x 8ft x 8.5ft" },
+  { label: "Weight", value: "2.5 tons" },
+  { label: "Color", value: "White with Blue Trim" },
+  { label: "Power Supply", value: "220V AC" },
+];
+
 const ProductImageGallery = ({ previews = [], imagePath, productName }) => {
   const [index, setIndex] = useState(0);
 
@@ -76,11 +84,38 @@ const ProductImageGallery = ({ previews = [], imagePath, productName }) => {
 };
 
 const ProductTabs = ({
-  specifications = [],
+  specifications = [specificationsData],
   description = "",
   comments = [],
 }) => {
   const [activeTab, setActiveTab] = useState("description");
+  const [commentText, setCommentText] = useState("");
+  const [commenterName, setCommenterName] = useState("");
+
+  const handleSubmitComment = () => {
+    if (commentText.trim() === "" || commenterName.trim() === "") return;
+
+    const newComment = {
+      user: commenterName,
+      comment: commentText,
+      profile: "https://via.placeholder.com/40", // or fetch from logged-in user
+    };
+
+    // This function should update your comment list in parent or local state
+    onAddComment(newComment);
+
+    setCommentText(""); // clear textarea
+    setCommenterName(""); // clear input
+  };
+
+  // Handle changes in input fields
+  const handleCommenterNameChange = (e) => {
+    setCommenterName(e.target.value);
+  };
+
+  const handleCommentTextChange = (e) => {
+    setCommentText(e.target.value);
+  };
 
   return (
     <div className="mt-16">
@@ -139,22 +174,22 @@ const ProductTabs = ({
 
         {activeTab === "comments" && (
           <div className="space-y-6">
+            {/* Comments list */}
             {comments.length === 0 ? (
-              <p className="text-gray-500">No comments available.</p>
+              <p className="text-gray-500 text-center py-20">
+                No comments available.
+              </p>
             ) : (
               comments.map((c, i) => (
                 <div
                   key={i}
                   className="flex items-start gap-4 border border-gray-200 p-4 rounded-lg shadow-sm"
                 >
-                  {/* Profile picture */}
                   <img
                     src={c.profile || "https://via.placeholder.com/40"}
                     alt={c.user}
                     className="w-12 h-12 rounded-full object-cover"
                   />
-
-                  {/* Comment content */}
                   <div>
                     <p className="font-semibold text-zinc-800">{c.user}</p>
                     <p className="text-gray-600 text-sm mt-1">{c.comment}</p>
@@ -162,6 +197,31 @@ const ProductTabs = ({
                 </div>
               ))
             )}
+            {/* Comment input */}
+            <div className="flex flex-col gap-3">
+              <input
+                type="text"
+                name="commenterName"
+                value={commenterName}
+                onChange={handleCommenterNameChange}
+                className="border border-gray-300 py-2 px-3"
+                placeholder="Enter Your Name"
+                required
+              />
+              <textarea
+                rows="3"
+                className="w-full border border-gray-300 rounded p-2"
+                placeholder="Write your comment..."
+                value={commentText}
+                onChange={handleCommentTextChange}
+              />
+              <button
+                onClick={handleSubmitComment}
+                className="self-start px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Post Comment
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -226,7 +286,7 @@ const Section1 = () => {
     },
     onError: (err) => {
       // Show error toast
-      toast.error(err.message);
+      toast.error(err.response.data.message);
     },
   });
 
@@ -304,7 +364,7 @@ const Section1 = () => {
 
         <ProductTabs
           description={product?.productdescription}
-          specifications={product?.specifications || []}
+          specifications={specificationsData || []}
           comments={product?.comments || []}
         />
       </div>

@@ -134,6 +134,16 @@ module.exports.getProduct = async (props) => {
         "subcategories.id",
         "products.productsubcategoryid"
       )
+      .leftJoin(
+        "productspecificationdetails",
+        "productspecificationdetails.productid",
+        "products.productid"
+      )
+      .leftJoin(
+        "specifications",
+        "specifications.specificationid",
+        "productspecificationdetails.productspecificationid"
+      )
       .select(
         "products.productid",
         "products.productname",
@@ -148,9 +158,15 @@ module.exports.getProduct = async (props) => {
         "categories.productcategoryimage",
         "subcategories.id as productsubcategoryid",
         "subcategories.subcategoryname",
-        "subcategories.subcategoryimage"
-        // Removed "products.productimages"
+        "subcategories.subcategoryimage",
+        db.raw(
+          "GROUP_CONCAT(specifications.specificationName SEPARATOR ', ') as specificationNames"
+        ),
+        db.raw(
+          "GROUP_CONCAT(productspecificationdetails.productspecificationdescription SEPARATOR ' | ') as specificationDescriptions"
+        )
       )
+      .groupBy("products.productid")
       .orderBy("products.productid", "DESC");
 
     if (productid)
