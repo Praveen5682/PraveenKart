@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 // ✅ Serve Static Files (Uploaded Images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/api", routes); // Prefix all routes with "/api"
+app.use("/api", routes);
 
 const port = process.env.PORT || 3000;
 

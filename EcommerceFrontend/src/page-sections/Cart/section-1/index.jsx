@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import QtyField from "../../../components/cart/QtyFiled";
@@ -7,10 +7,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCart } from "../../../services/components/cart/getCart";
 import toast from "react-hot-toast";
 import { deleteCart } from "../../../services/components/cart/deleteCart";
+import { Link } from "react-router-dom";
 
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
 const Cart = () => {
+  const [qty, setQty] = useState("");
+
   const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
@@ -73,12 +76,14 @@ const Cart = () => {
                     {/* Product details */}
                     <div>
                       <div className="text-base md:text-lg hover:text-blue-600 mb-4">
-                        <a href="#!">{item.productname}</a>
+                        <Link to={`/product-details/${item.productid}`}>
+                          {item.productname}
+                        </Link>
                       </div>
                       <div>
                         <QtyField
                           name={`ezy__epcart4-qty-${index}`}
-                          value={item.qty}
+                          value={item.quantity}
                           onChange={(e) => handleQtyChange(e, index)}
                         />
                         <h3 className="text-xl font-bold text-blue-600">

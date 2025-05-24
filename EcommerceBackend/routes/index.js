@@ -37,4 +37,7 @@ router.use(
 
 router.use("/cart", require("../versions/v1/cart/router/index"));
 
+// Comments
+router.use("/comment", require("../versions/v1/comments/router/index"));
+
 module.exports = router;

@@ -6,30 +6,22 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProduct } from "../../../services/components/products/getProduct";
 import { addToCart } from "../../../services/components/cart/addToCart";
 import toast from "react-hot-toast";
+import CommentsSection from "../../../components/comments/CommentsSection";
 
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
-const specificationsData = [
-  { label: "Material", value: "Stainless Steel" },
-  { label: "Dimensions", value: "20ft x 8ft x 8.5ft" },
-  { label: "Weight", value: "2.5 tons" },
-  { label: "Color", value: "White with Blue Trim" },
-  { label: "Power Supply", value: "220V AC" },
-];
-
+// Helper Components
 const ProductImageGallery = ({ previews = [], imagePath, productName }) => {
-  const [index, setIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const mainImage =
-    previews[index]?.previewUrl ||
+    previews[currentIndex]?.previewUrl ||
     `${IMG_URL}/uploads/${imagePath?.replace(/\\/g, "/")}`;
 
-  const nextImage = () => {
-    setIndex((prev) => (prev + 1) % previews.length);
-  };
-
-  const prevImage = () => {
-    setIndex((prev) => (prev - 1 + previews.length) % previews.length);
+  const navigateImage = (direction) => {
+    setCurrentIndex(
+      (prev) => (prev + direction + previews.length) % previews.length
+    );
   };
 
   return (
@@ -42,17 +34,16 @@ const ProductImageGallery = ({ previews = [], imagePath, productName }) => {
           className="w-[350px] h-[400px] object-cover mx-auto rounded-xl transition duration-500"
         />
 
-        {/* Prev/Next buttons */}
         {previews.length > 1 && (
           <>
             <button
-              onClick={prevImage}
+              onClick={() => navigateImage(-1)}
               className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white border p-2 rounded-full shadow hover:bg-gray-100"
             >
               ‹
             </button>
             <button
-              onClick={nextImage}
+              onClick={() => navigateImage(1)}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white border p-2 rounded-full shadow hover:bg-gray-100"
             >
               ›
@@ -61,14 +52,13 @@ const ProductImageGallery = ({ previews = [], imagePath, productName }) => {
         )}
       </div>
 
-      {/* Preview thumbnails */}
       <div className="flex gap-4 justify-center">
         {previews.slice(0, 3).map((img, i) => (
           <div
             key={i}
-            onClick={() => setIndex(i)}
+            onClick={() => setCurrentIndex(i)}
             className={`cursor-pointer border-2 rounded-xl p-1 transition hover:scale-105 ${
-              i === index ? "border-blue-600" : "border-gray-300"
+              i === currentIndex ? "border-blue-600" : "border-gray-300"
             }`}
           >
             <img
@@ -84,76 +74,50 @@ const ProductImageGallery = ({ previews = [], imagePath, productName }) => {
 };
 
 const ProductTabs = ({
-  specifications = [specificationsData],
+  specifications = [],
   description = "",
   comments = [],
+  productData,
 }) => {
   const [activeTab, setActiveTab] = useState("description");
-  const [commentText, setCommentText] = useState("");
-  const [commenterName, setCommenterName] = useState("");
+  const [commentsList, setCommentsList] = useState(comments);
 
-  const handleSubmitComment = () => {
-    if (commentText.trim() === "" || commenterName.trim() === "") return;
-
-    const newComment = {
-      user: commenterName,
-      comment: commentText,
-      profile: "https://via.placeholder.com/40", // or fetch from logged-in user
-    };
-
-    // This function should update your comment list in parent or local state
-    onAddComment(newComment);
-
-    setCommentText(""); // clear textarea
-    setCommenterName(""); // clear input
+  const handleAddComment = (newComment) => {
+    // In a real app, you would send this to your backend
+    setCommentsList((prev) => [
+      ...prev,
+      {
+        ...newComment,
+        profile: "https://via.placeholder.com/40",
+        date: new Date().toISOString(),
+      },
+    ]);
   };
 
-  // Handle changes in input fields
-  const handleCommenterNameChange = (e) => {
-    setCommenterName(e.target.value);
-  };
-
-  const handleCommentTextChange = (e) => {
-    setCommentText(e.target.value);
-  };
+  const tabs = [
+    { id: "description", label: "Description" },
+    { id: "specs", label: "Specifications" },
+    { id: "comments", label: "Comments" },
+  ];
 
   return (
     <div className="mt-16">
-      {/* Tabs */}
       <div className="flex gap-6 border-b border-gray-200">
-        <button
-          onClick={() => setActiveTab("description")}
-          className={`pb-2 text-lg font-medium ${
-            activeTab === "description"
-              ? "border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-500"
-          }`}
-        >
-          Description
-        </button>
-        <button
-          onClick={() => setActiveTab("specs")}
-          className={`pb-2 text-lg font-medium ${
-            activeTab === "specs"
-              ? "border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-500"
-          }`}
-        >
-          Specifications
-        </button>
-        <button
-          onClick={() => setActiveTab("comments")}
-          className={`pb-2 text-lg font-medium ${
-            activeTab === "comments"
-              ? "border-b-2 border-blue-600 text-blue-600"
-              : "text-gray-500"
-          }`}
-        >
-          Comments
-        </button>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`pb-2 text-lg font-medium ${
+              activeTab === tab.id
+                ? "border-b-2 border-blue-600 text-blue-600"
+                : "text-gray-500"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Tab Content */}
       <div className="mt-6">
         {activeTab === "description" && (
           <p className="text-gray-700 text-base leading-relaxed">
@@ -173,56 +137,11 @@ const ProductTabs = ({
         )}
 
         {activeTab === "comments" && (
-          <div className="space-y-6">
-            {/* Comments list */}
-            {comments.length === 0 ? (
-              <p className="text-gray-500 text-center py-20">
-                No comments available.
-              </p>
-            ) : (
-              comments.map((c, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-4 border border-gray-200 p-4 rounded-lg shadow-sm"
-                >
-                  <img
-                    src={c.profile || "https://via.placeholder.com/40"}
-                    alt={c.user}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="font-semibold text-zinc-800">{c.user}</p>
-                    <p className="text-gray-600 text-sm mt-1">{c.comment}</p>
-                  </div>
-                </div>
-              ))
-            )}
-            {/* Comment input */}
-            <div className="flex flex-col gap-3">
-              <input
-                type="text"
-                name="commenterName"
-                value={commenterName}
-                onChange={handleCommenterNameChange}
-                className="border border-gray-300 py-2 px-3"
-                placeholder="Enter Your Name"
-                required
-              />
-              <textarea
-                rows="3"
-                className="w-full border border-gray-300 rounded p-2"
-                placeholder="Write your comment..."
-                value={commentText}
-                onChange={handleCommentTextChange}
-              />
-              <button
-                onClick={handleSubmitComment}
-                className="self-start px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Post Comment
-              </button>
-            </div>
-          </div>
+          <CommentsSection
+            comments={commentsList}
+            onAddComment={handleAddComment}
+            productData={productData}
+          />
         )}
       </div>
     </div>
@@ -230,15 +149,15 @@ const ProductTabs = ({
 };
 
 const QuantityInput = ({ value, onChange }) => {
-  const updateQty = (qty) => {
-    onChange(Math.max(1, qty));
+  const updateQuantity = (newValue) => {
+    onChange(Math.max(1, newValue));
   };
 
   return (
     <div className="flex items-center gap-3 mb-6">
       <button
         className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
-        onClick={() => updateQty(value - 1)}
+        onClick={() => updateQuantity(value - 1)}
       >
         -
       </button>
@@ -247,14 +166,60 @@ const QuantityInput = ({ value, onChange }) => {
         min="1"
         className="w-16 text-center bg-gray-100 border border-gray-300 rounded"
         value={value}
-        onChange={(e) => updateQty(Number(e.target.value))}
+        onChange={(e) => updateQuantity(Number(e.target.value))}
       />
       <button
         className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
-        onClick={() => updateQty(value + 1)}
+        onClick={() => updateQuantity(value + 1)}
       >
         +
       </button>
+    </div>
+  );
+};
+
+const ActionButtons = ({ onAddToCart, onBuyNow, onAddToWishlist }) => (
+  <div className="flex flex-wrap gap-4 items-center">
+    <button
+      className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition"
+      onClick={onBuyNow}
+    >
+      Buy Now
+    </button>
+    <button
+      className="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
+      onClick={onAddToCart}
+    >
+      Add to Cart
+    </button>
+    <button
+      className="flex items-center gap-2 border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
+      onClick={onAddToWishlist}
+    >
+      <FontAwesomeIcon icon={faHeart} />
+      <span>Add to Wishlist</span>
+    </button>
+  </div>
+);
+
+const ProductDetails = ({ product }) => {
+  const [quantity, setQuantity] = useState(1);
+
+  return (
+    <div className="mt-10 lg:mt-20 space-y-6">
+      <h1 className="text-4xl font-semibold text-black">
+        {product.productname}
+      </h1>
+      <p className="text-base text-gray-700 leading-relaxed">
+        {product.productdescription}
+      </p>
+      <h3 className="text-3xl text-blue-600 font-bold">
+        Rs. {product.productprice}
+      </h3>
+      <div>
+        <h5 className="text-lg font-medium mb-2">Quantity</h5>
+        <QuantityInput value={quantity} onChange={setQuantity} />
+      </div>
     </div>
   );
 };
@@ -263,10 +228,7 @@ const Section1 = () => {
   const { productid } = useParams();
   const userid = localStorage.getItem("userid");
   const queryClient = useQueryClient();
-
-  const [formData, setFormData] = useState({
-    qty: 1,
-  });
+  const [quantity, setQuantity] = useState(1);
 
   const { data: productsData } = useQuery({
     queryFn: () => getProduct({ productid }),
@@ -274,37 +236,32 @@ const Section1 = () => {
   });
 
   const product = productsData?.response?.[0];
+  const specifications =
+    product?.specificationNames?.split(",").map((label, i) => ({
+      label: label.trim(),
+      value: product?.specificationDescriptions?.split("|")[i]?.trim() || "",
+    })) || [];
 
   const addToCartMutation = useMutation({
-    mutationFn: addToCart, // Your function for adding items to the cart
+    mutationFn: addToCart,
     onSuccess: () => {
-      // Show success toast
       toast.success("Added to cart successfully");
-
-      // Invalidate the 'carts' query to refetch updated data
       queryClient.invalidateQueries(["carts", userid]);
     },
     onError: (err) => {
-      // Show error toast
       toast.error(err.response.data.message);
     },
   });
 
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleAddCart = () => {
+  const handleAddToCart = () => {
     if (!product) return;
 
-    const payload = {
+    addToCartMutation.mutate({
       userid,
       productid,
-      quantity: formData.qty,
+      quantity,
       price_at_add_time: product.productprice,
-    };
-
-    addToCartMutation.mutate(payload);
+    });
   };
 
   if (!product) return null;
@@ -316,56 +273,24 @@ const Section1 = () => {
           <ProductImageGallery
             previews={product.previews || []}
             imagePath={product?.productimages?.[0]?.defaultimage}
-            productName={product?.productname}
+            productName={product.productname}
           />
 
-          <div className="mt-10 lg:mt-20 space-y-6">
-            <h1 className="text-4xl font-semibold text-black">
-              {product.productname}
-            </h1>
-
-            <p className="text-base text-gray-700 leading-relaxed">
-              {product?.productdescription}
-            </p>
-
-            <h3 className="text-3xl text-blue-600 font-bold">
-              Rs. {product.productprice}
-            </h3>
-
-            <div>
-              <h5 className="text-lg font-medium mb-2">Quantity</h5>
-              <QuantityInput
-                value={formData.qty}
-                onChange={(val) => handleChange("qty", val)}
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-4 items-center">
-              <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition">
-                Buy Now
-              </button>
-              <button
-                className="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
-                onClick={handleAddCart}
-              >
-                Add to Cart
-              </button>
-
-              <button
-                className="flex items-center gap-2 border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
-                // onClick={handleAddWishlist} // define this function
-              >
-                <FontAwesomeIcon icon={faHeart} />
-                <span>Add to Wishlist</span>
-              </button>
-            </div>
+          <div>
+            <ProductDetails product={product} />
+            <ActionButtons
+              onAddToCart={handleAddToCart}
+              onBuyNow={() => {}} // Implement buy now functionality
+              onAddToWishlist={() => {}} // Implement wishlist functionality
+            />
           </div>
         </div>
 
         <ProductTabs
-          description={product?.productdescription}
-          specifications={specificationsData || []}
+          description={product.productdescription}
+          specifications={specifications}
           comments={product?.comments || []}
+          productData={product}
         />
       </div>
     </section>
