@@ -19,11 +19,11 @@ const CommentItem = ({ comment }) => (
         className="w-10 h-10 rounded-full object-cover"
       />
       <span className="text-xs text-gray-500">
-        {new Date(comment.date).toLocaleDateString()}
+        {new Date(comment.created_at).toLocaleDateString()}
       </span>
     </div>
     <div className="flex-1">
-      <p className="font-semibold text-zinc-800">{comment.user}</p>
+      <p className="font-semibold text-zinc-800">{comment.username}</p>
       <p className="text-gray-600 mt-1">{comment.comment}</p>
     </div>
   </div>
