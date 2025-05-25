@@ -89,7 +89,7 @@ const BannerSection = () => {
     <>
       <style>{customStyles}</style>
 
-      <div className="relative group w-full lg:h-[80vh] md:h-[60vh] h-[40vh] overflow-hidden">
+      <div className="relative group w-full lg:h-[86vh] md:h-[60vh] h-[40vh] overflow-hidden">
         <Swiper
           spaceBetween={0}
           slidesPerView={1}

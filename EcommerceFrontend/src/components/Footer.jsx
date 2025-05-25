@@ -2,68 +2,98 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-black mt-10">
-      <div className="mx-auto w-full py-6 px-10">
-        <div className="md:flex md:justify-between">
-          <div className="mb-6 md:mb-0">
-            <a href="/" className="flex items-center">
-              <img
-                src="/your-logo.svg" // Replace with your actual logo path
-                className="h-8 me-3"
-                alt="Your Logo"
-              />
-              <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
-                YourBrand
+    <footer className="bg-gray-900 text-gray-300 mt-12">
+      <div className="max-w-7xl mx-auto px-6 py-12 sm:px-10">
+        {/* Top Section */}
+        <div className="md:flex md:justify-between md:items-start space-y-10 md:space-y-0">
+          {/* Brand & Newsletter */}
+          <div className="md:w-1/3">
+            <a href="/" className="flex items-center mb-6">
+              <span className="ml-3 text-2xl font-bold text-white">
+                PraveenKart
               </span>
             </a>
+            <p className="text-gray-400 mb-4">
+              Your one-stop shop for the best products online.
+            </p>
           </div>
-          <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
+
+          {/* Quick Links */}
+          <div className="grid grid-cols-2 gap-8 md:w-2/3 sm:grid-cols-3">
             <div>
-              <h2 className="mb-6 text-sm font-semibold  uppercase text-white">
-                Resources
-              </h2>
-              <ul className="text-white  font-medium">
-                <li className="mb-4">
-                  <a href="#" className="hover:underline">
-                    Docs
+              <h3 className="text-white font-semibold mb-4 uppercase">Shop</h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="/categories/men" className="hover:underline">
+                    Men
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:underline">
-                    Blog
+                  <a href="/categories/women" className="hover:underline">
+                    Women
+                  </a>
+                </li>
+                <li>
+                  <a href="/categories/accessories" className="hover:underline">
+                    Accessories
+                  </a>
+                </li>
+                <li>
+                  <a href="/categories/sale" className="hover:underline">
+                    Sale
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h2 className="mb-6 text-sm font-semibold  uppercase text-white">
-                Follow Us
-              </h2>
-              <ul className="text-white  font-medium">
-                <li className="mb-4">
-                  <a href="#" className="hover:underline">
-                    GitHub
+              <h3 className="text-white font-semibold mb-4 uppercase">
+                Customer Service
+              </h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="/help/shipping" className="hover:underline">
+                    Shipping Info
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:underline">
-                    Twitter
+                  <a href="/help/returns" className="hover:underline">
+                    Returns & Exchanges
+                  </a>
+                </li>
+                <li>
+                  <a href="/help/faq" className="hover:underline">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact" className="hover:underline">
+                    Contact Us
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h2 className="mb-6 text-sm font-semibold  uppercase text-white">
-                Legal
-              </h2>
-              <ul className="text-white  font-medium">
-                <li className="mb-4">
-                  <a href="#" className="hover:underline">
+              <h3 className="text-white font-semibold mb-4 uppercase">
+                About Us
+              </h3>
+              <ul className="space-y-3">
+                <li>
+                  <a href="/about" className="hover:underline">
+                    Our Story
+                  </a>
+                </li>
+                <li>
+                  <a href="/careers" className="hover:underline">
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a href="/privacy-policy" className="hover:underline">
                     Privacy Policy
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:underline">
+                  <a href="/terms" className="hover:underline">
                     Terms & Conditions
                   </a>
                 </li>
@@ -71,46 +101,47 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <hr className="my-6 border-gray-200 sm:mx-auto  lg:my-8" />
-        <div className="sm:flex sm:items-center sm:justify-between">
-          <span className="text-sm text-white sm:text-center ">
-            © {new Date().getFullYear()}{" "}
-            <a href="/" className="hover:underline">
-              YourBrand™
-            </a>
-            . All Rights Reserved.
-          </span>
-          <div className="flex mt-4 sm:justify-center sm:mt-0">
-            {/* Social Media Icons */}
-            <a href="#" className="text-white hover: hover:text-white me-5">
-              <svg className="w-4 h-4" viewBox="0 0 8 19" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M6.135 3H8V0H6.135a4.147 4.147 0 0 0-4.142 4.142V6H0v3h2v9.938h3V9h2.021l.592-3H5V3.591A.6.6 0 0 1 5.592 3h.543Z"
-                  clipRule="evenodd"
-                />
+
+        {/* Divider */}
+        <hr className="border-gray-700 my-10" />
+
+        {/* Bottom Section */}
+        <div className="sm:flex sm:justify-between sm:items-center text-gray-400 text-sm">
+          <p>© {new Date().getFullYear()} YourBrand. All rights reserved.</p>
+          <div className="flex space-x-6 mt-4 sm:mt-0">
+            <a href="#" aria-label="Facebook" className="hover:text-blue-600">
+              <svg
+                className="w-6 h-6"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M22 12a10 10 0 1 0-11.5 9.87v-6.99H8v-2.88h2.5v-2.2c0-2.46 1.49-3.82 3.77-3.82 1.09 0 2.23.2 2.23.2v2.45h-1.25c-1.23 0-1.61.77-1.61 1.56v1.9h2.74l-.44 2.88h-2.3v6.99A10 10 0 0 0 22 12z" />
               </svg>
-              <span className="sr-only">Facebook</span>
             </a>
-            <a href="#" className="text-white hover: hover:text-white me-5">
-              <svg className="w-4 h-4" viewBox="0 0 20 17" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M20 1.892a8.178 8.178 0 0 1-2.355.635 4.074 4.074 0 0 0 1.8-2.235..."
-                  clipRule="evenodd"
-                />
+            <a href="#" aria-label="Twitter" className="hover:text-blue-400">
+              <svg
+                className="w-6 h-6"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M23 3a10.9 10.9 0 0 1-3.14.86 4.48 4.48 0 0 0 1.96-2.48 9.12 9.12 0 0 1-2.88 1.1A4.52 4.52 0 0 0 16.5 2a4.48 4.48 0 0 0-4.48 4.48c0 .35.04.7.11 1.04A12.8 12.8 0 0 1 3 3.24a4.48 4.48 0 0 0-.6 2.26 4.48 4.48 0 0 0 2 3.74 4.5 4.5 0 0 1-2.04-.56v.06a4.48 4.48 0 0 0 3.6 4.4 4.5 4.5 0 0 1-2.03.08 4.48 4.48 0 0 0 4.19 3.13A9 9 0 0 1 1 19.54a12.7 12.7 0 0 0 6.88 2.02c8.25 0 12.77-6.83 12.77-12.76 0-.2 0-.42-.02-.63A9.13 9.13 0 0 0 23 3z" />
               </svg>
-              <span className="sr-only">Twitter</span>
             </a>
-            <a href="#" className="text-white hover: hover:text-white me-5">
-              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M10 .333A9.911 9.911 0 0 0 6.866 19.65c.5.092.678-.215..."
-                  clipRule="evenodd"
-                />
+            <a href="#" aria-label="Instagram" className="hover:text-pink-600">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 8.63 4a4 4 0 0 1 7.37 7.37z" />
+                <line x1="17.5" y1="6.5" x2="17.5" y2="6.5" />
               </svg>
-              <span className="sr-only">GitHub</span>
             </a>
           </div>
         </div>

@@ -153,6 +153,7 @@ module.exports.getProduct = async (props) => {
         "products.productgst",
         "products.productcategoryid",
         "products.productdescription",
+        "products.created_at",
         "categories.id as productcategoryid",
         "categories.productcategoryname",
         "categories.productcategoryimage",
@@ -220,6 +221,50 @@ module.exports.getProduct = async (props) => {
       status: false,
       message: "Failed to fetch product data",
       response: [],
+    };
+  }
+};
+
+module.exports.getRelatedProducts = async (props) => {
+  const { category_id, exclude_product_id, limit } = props;
+
+  try {
+    if (!category_id || !exclude_product_id) {
+      return {
+        success: false,
+        message: "category_id and exclude_product_id are required",
+        statuscode: 400,
+      };
+    }
+
+    const relatedProducts = await db("products")
+      .select(
+        "products.productid",
+        "products.productname",
+        "products.productprice",
+        "productimages.defaultimage"
+      )
+      .leftJoin(
+        "productimages",
+        "productimages.productid",
+        "products.productid"
+      )
+      .where("products.productcategoryid", category_id)
+      .andWhereNot("products.productid", exclude_product_id)
+      .limit(limit);
+
+    return {
+      success: true,
+      statuscode: 200,
+      data: relatedProducts,
+      message: "Related products fetched successfully",
+    };
+  } catch (error) {
+    console.error("Error fetching related products:", error);
+    return {
+      success: false,
+      statuscode: 500,
+      message: "Internal server error",
     };
   }
 };

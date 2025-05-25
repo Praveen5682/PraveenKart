@@ -1,40 +1,39 @@
-import React from "react";
-import produt1 from "../../../assets/frontend_assets/p_img2_1.png";
-import produt2 from "../../../assets/frontend_assets/p_img11.png";
-import produt3 from "../../../assets/frontend_assets/p_img48.png";
-import produt4 from "../../../assets/frontend_assets/p_img31.png";
-import produt5 from "../../../assets/frontend_assets/p_img14.png";
-import produt6 from "../../../assets/frontend_assets/p_img42.png";
-import produt7 from "../../../assets/frontend_assets/p_img24.png";
-import produt8 from "../../../assets/frontend_assets/p_img28.png";
-import { FaRegHeart } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getProduct } from "../../../services/components/products/getProduct";
+import React from "react";
+import { FaRegHeart } from "react-icons/fa";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { getRelatedProducts } from "../../services/components/products/getRelatedProducts";
+
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
-const NewArrivalsSection = () => {
+const RelatedProducts = () => {
+  const { productid, categoryid } = useParams();
+  console.log("productid, productCategoryid", productid, categoryid);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => getProduct(),
+    queryKey: ["relatedProducts"],
+    queryFn: () =>
+      getRelatedProducts({
+        category_id: categoryid,
+        exclude_product_id: Number(productid),
+      }),
   });
 
-  const productsData = data?.response || [];
+  const relatedProducts = data?.data || [];
+  console.log("related", relatedProducts);
 
   const navigate = useNavigate();
-  const sortedProducts = [...productsData]
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 8);
+
   const handleNavigateToProductDetails = (productid) => {
-    navigate(`/product-details/${productid}`);
+    navigate(`/product-details/${productid}/${categoryid}`);
   };
 
   return (
     <div className="pb-0">
       <div className="container mx-auto px-6">
-        <p className="text-center pb-10 text-3xl">New Arrivals</p>
+        <p className="text-center pb-10 text-3xl">Related Products</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-          {sortedProducts.map((product) => (
+          {relatedProducts.map((product) => (
             <div
               key={product.productid}
               className="relative"
@@ -46,12 +45,17 @@ const NewArrivalsSection = () => {
               </div>
               <div className="cursor-pointer overflow-hidden">
                 <img
-                  src={IMG_URL + "/uploads/" + product.defaultimage}
+                  src={
+                    product.defaultimage
+                      ? `${IMG_URL}/uploads/${product.defaultimage}`
+                      : "/placeholder.png"
+                  }
                   crossOrigin="anonymous"
-                  alt={product.productname}
-                  className="w-[300px] h-[350px] object-cover mx-auto transform transition duration-500 hover:scale-110"
+                  alt={product.productname || "Product Image"}
+                  className="w-full h-[360px] object-cover transform transition duration-500 hover:scale-110"
                 />
               </div>
+
               <div>
                 <p className="text-md font-normal text-center pt-5">
                   {product.productname}
@@ -68,4 +72,4 @@ const NewArrivalsSection = () => {
   );
 };
 
-export default NewArrivalsSection;
+export default RelatedProducts;

@@ -13,5 +13,6 @@ router.post(
 );
 
 router.post("/getproduct", controller.getProduct);
+router.post("/getrelatedproducts", controller.getRelatedProducts);
 
 module.exports = router;

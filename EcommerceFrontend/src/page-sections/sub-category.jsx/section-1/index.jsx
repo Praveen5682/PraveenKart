@@ -30,8 +30,8 @@ const Section1 = () => {
 
   const navigate = useNavigate();
 
-  const handleNavigateToProduct = (productid) => {
-    navigate(`/products/${productid}`);
+  const handleNavigateToProduct = (subcategoryid) => {
+    navigate(`/products/${categoryid}/${subcategoryid}`);
   };
 
   return (

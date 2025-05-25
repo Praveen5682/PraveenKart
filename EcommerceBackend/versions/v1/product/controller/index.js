@@ -135,3 +135,34 @@ module.exports.getProduct = async (req, res) => {
     });
   }
 };
+
+module.exports.getRelatedProducts = async (req, res) => {
+  const { category_id, exclude_product_id, limit = 4 } = req.body;
+
+  try {
+    if (!category_id || !exclude_product_id) {
+      return res.status(400).json({
+        status: false,
+        message: "category_id and exclude_product_id are required",
+      });
+    }
+
+    const result = await service.getRelatedProducts({
+      category_id,
+      exclude_product_id,
+      limit,
+    });
+
+    return res.status(result.statuscode).json({
+      status: result.success,
+      message: result.message,
+      data: result.data || [],
+    });
+  } catch (error) {
+    console.error("Controller error fetching related products:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Failed to fetch related products",
+    });
+  }
+};

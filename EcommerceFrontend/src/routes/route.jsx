@@ -25,16 +25,23 @@ const router = createBrowserRouter([
     children: [
       { path: "", element: <Home /> },
       { path: "login", element: <Login /> },
-      { path: "product-details/:productid", element: <ProductDetails /> },
+      {
+        path: "product-details/:productid/:categoryid",
+        element: <ProductDetails />,
+      },
       { path: "signup", element: <Signup /> },
       { path: "forget-password", element: <ForgetPassword /> },
       { path: "cart", element: <Cart /> },
       { path: "SubCategory/:categoryid", element: <SubCategoryPageView /> },
-      { path: "products/:subcategoryid", element: <ProductsPage /> },
+      {
+        path: "products/:categoryid/:subcategoryid",
+        element: <ProductsPage />,
+      },
     ],
   },
 
   // Separate Admin Panel
+
   {
     path: "/dashboard",
     element: <PrivateRoute element={<AdminLayout />} />, // Protect the admin routes

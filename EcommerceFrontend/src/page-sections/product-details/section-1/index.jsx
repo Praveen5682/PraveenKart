@@ -7,6 +7,7 @@ import { getProduct } from "../../../services/components/products/getProduct";
 import { addToCart } from "../../../services/components/cart/addToCart";
 import toast from "react-hot-toast";
 import CommentsSection from "../../../components/comments/CommentsSection";
+import RelatedProducts from "../../../components/relatedProducts/RelatedProducts";
 
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
@@ -292,6 +293,10 @@ const Section1 = () => {
           comments={product?.comments || []}
           productData={product}
         />
+
+        <div className="mt-20">
+          <RelatedProducts />
+        </div>
       </div>
     </section>
   );

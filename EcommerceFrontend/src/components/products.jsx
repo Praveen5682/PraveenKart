@@ -7,20 +7,18 @@ import { getProduct } from "../services/components/products/getProduct";
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
 const Products = () => {
-  const { subcategoryid } = useParams();
-  console.log("subcategoryid", subcategoryid);
+  const { categoryid, subcategoryid } = useParams();
+  const navigate = useNavigate();
 
   const { data } = useQuery({
     queryFn: () => getProduct({ productsubcategoryid: subcategoryid }),
-    queryKey: ["products"],
+    queryKey: ["products", subcategoryid],
   });
 
   const productsData = data?.response || [];
-  console.log("data", productsData);
-  const navigate = useNavigate();
 
   const handleNavigateToProductDetails = (productid) => {
-    navigate(`/product-details/${productid}`);
+    navigate(`/product-details/${productid}/${categoryid}`);
   };
 
   return (
