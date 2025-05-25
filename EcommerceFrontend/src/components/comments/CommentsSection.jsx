@@ -66,7 +66,7 @@ const CommentsSection = ({ onNewComment, productData }) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["comments", product_id],
     queryFn: () => getComments({ product_id }),
-    enabled: !!product_id, // only fetch if product_id exists
+    refetchOnMount: true,
   });
 
   const fetchcomments = data?.data;

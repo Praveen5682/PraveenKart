@@ -1,8 +1,11 @@
 import axiosInstance from "../../axiosInstance";
 
-export async function getComments(productid) {
+export async function getComments(product_id) {
   try {
-    const response = await axiosInstance.post("comment/getComments", productid);
+    const response = await axiosInstance.post(
+      "comment/getComments",
+      product_id
+    );
     return response.data;
   } catch (error) {
     console.error(

@@ -56,8 +56,10 @@ module.exports.getComments = async (props) => {
     }
 
     const fetchComments = await db("comments")
+      .leftJoin("users", "comments.user_id", "users.id")
       .where({ product_id })
-      .orderBy("created_at", "desc");
+      .select("comments.*", "users.fullName as username")
+      .orderBy("comments.created_at", "desc");
 
     return {
       success: true,
@@ -65,6 +67,7 @@ module.exports.getComments = async (props) => {
       data: fetchComments,
     };
   } catch (error) {
+    console.error("Error fetching comments:", error);
     return {
       success: false,
       statuscode: 500,
