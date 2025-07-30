@@ -1,7 +1,7 @@
+// getProduct.js
 import axiosInstance from "../../axiosInstance";
 
 export async function getProduct(productData) {
-  // console.log(productData)
   try {
     const response = await axiosInstance.post(
       "product/getproduct",
