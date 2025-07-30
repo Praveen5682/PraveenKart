@@ -61,8 +61,11 @@ const Navbar = () => {
   return (
     <nav className="bg-black fixed w-full z-50 top-0 start-0 border-b border-gray-700">
       <div className="flex items-center justify-between mx-auto py-4 px-6 md:px-10">
-        <Link to="/" className="text-2xl font-bold text-white">
-          praveenKart
+        <Link
+          to="/"
+          className="text-3xl font-extrabold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-600 tracking-wide hover:scale-105 transition-transform duration-300"
+        >
+          PraveenKart
         </Link>
 
         <SearchBar
