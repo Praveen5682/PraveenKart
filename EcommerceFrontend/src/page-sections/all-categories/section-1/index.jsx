@@ -8,7 +8,7 @@ import { getProductCategory } from "../../../services/components/category/getpro
 import { Link } from "react-router-dom";
 
 const IMG_URL = import.meta.env.VITE_IMG_URL;
-const ShopByCategorySection = () => {
+const Section1 = () => {
   const { data, isLoading, isError } = useQuery({
     queryFn: getProductCategory,
     queryKey: ["allcategories"],
@@ -21,22 +21,13 @@ const ShopByCategorySection = () => {
   console.log("👍🏻", Allcategories);
 
   return (
-    <div className="py-12 ">
+    <div className="py-12 mt-12">
       <div className="container mx-auto px-6">
         <div className="relative mb-10 flex items-center justify-center">
           {/* Centered Title */}
           <h2 className="text-3xl font-bold text-gray-800 text-center">
             🛍️ Shop By Category
           </h2>
-
-          {Allcategories.length > 8 && (
-            <Link
-              to="/allcategories"
-              className="absolute right-0 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-2 rounded-lg shadow-md hover:opacity-90 transition"
-            >
-              View All Categories
-            </Link>
-          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
@@ -65,4 +56,4 @@ const ShopByCategorySection = () => {
   );
 };
 
-export default ShopByCategorySection;
+export default Section1;

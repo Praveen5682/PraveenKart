@@ -124,64 +124,45 @@ module.exports.createProduct = async (props) => {
 };
 
 module.exports.getProduct = async (props) => {
-  const { productid, productcategoryid, productsubcategoryid } = props;
+  const { productid, productcategoryid, productsubcategoryid, userid } = props;
 
   try {
-    let productsQuery = db("products")
-      .leftJoin("categories", "categories.id", "products.productcategoryid")
-      .leftJoin(
-        "subcategories",
-        "subcategories.id",
-        "products.productsubcategoryid"
-      )
-      .leftJoin(
-        "productspecificationdetails",
-        "productspecificationdetails.productid",
-        "products.productid"
-      )
-      .leftJoin(
-        "specifications",
-        "specifications.specificationid",
-        "productspecificationdetails.productspecificationid"
-      )
+    let productsQuery = db("products as p")
+      .leftJoin("categories as c", "c.id", "p.productcategoryid")
+      .leftJoin("subcategories as s", "s.id", "p.productsubcategoryid")
+      .leftJoin("wishlist as w", function () {
+        this.on("w.productid", "=", "p.productid").andOn(
+          "w.userid",
+          "=",
+          db.raw("?", [userid || 0])
+        );
+      })
       .select(
-        "products.productid",
-        "products.productname",
-        "products.thumbnailimage",
-        "products.productprice",
-        "products.productoffer",
-        "products.productgst",
-        "products.productcategoryid",
-        "products.productdescription",
-        "products.created_at",
-        "categories.id as productcategoryid",
-        "categories.productcategoryname",
-        "categories.productcategoryimage",
-        "subcategories.id as productsubcategoryid",
-        "subcategories.subcategoryname",
-        "subcategories.subcategoryimage",
-        db.raw(
-          "GROUP_CONCAT(specifications.specificationName SEPARATOR ', ') as specificationNames"
-        ),
-        db.raw(
-          "GROUP_CONCAT(productspecificationdetails.productspecificationdescription SEPARATOR ' | ') as specificationDescriptions"
-        )
+        "p.productid",
+        "p.productname",
+        "p.thumbnailimage",
+        "p.productprice",
+        "p.productoffer",
+        "p.productgst",
+        "p.productcategoryid",
+        "p.productdescription",
+        "p.created_at",
+        "c.productcategoryname",
+        "s.subcategoryname",
+        db.raw("IF(w.wishlistid IS NOT NULL, 1, 0) AS isWishlist")
       )
-      .groupBy("products.productid")
-      .orderBy("products.productid", "DESC");
+      .groupBy("p.productid")
+      .orderBy("p.productid", "DESC");
 
-    if (productid)
-      productsQuery = productsQuery.where("products.productid", productid);
-    if (productcategoryid)
-      productsQuery = productsQuery.where(
-        "products.productcategoryid",
-        productcategoryid
-      );
-    if (productsubcategoryid)
-      productsQuery = productsQuery.where(
-        "products.productsubcategoryid",
-        productsubcategoryid
-      );
+    if (productid) {
+      productsQuery.where("p.productid", productid);
+    }
+    if (productcategoryid) {
+      productsQuery.where("p.productcategoryid", productcategoryid);
+    }
+    if (productsubcategoryid) {
+      productsQuery.where("p.productsubcategoryid", productsubcategoryid);
+    }
 
     const products = await productsQuery;
 
@@ -193,27 +174,19 @@ module.exports.getProduct = async (props) => {
           .where("productid", product.productid);
 
         product.productimages = images;
-
-        const defaultImg = images.find((img) => img.defaultimage);
-        product.defaultimage = defaultImg ? defaultImg.defaultimage : null;
+        product.defaultimage =
+          images.find((img) => img.defaultimage)?.defaultimage || null;
       })
     );
 
-    if (products.length > 0) {
-      return {
-        code: 200,
-        status: true,
-        message: "Successfully fetched product data",
-        response: products,
-      };
-    } else {
-      return {
-        code: 200,
-        status: true,
-        message: "No product data found",
-        response: [],
-      };
-    }
+    return {
+      code: 200,
+      status: true,
+      message: products.length
+        ? "Successfully fetched product data"
+        : "No product data found",
+      response: products,
+    };
   } catch (err) {
     console.error("Error fetching product data:", err.message);
     return {

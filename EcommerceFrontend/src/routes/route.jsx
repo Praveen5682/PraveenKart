@@ -17,6 +17,8 @@ import Banner from "../pages/adminPanel/banner/Banner";
 import SubCategoryPageView from "../page-sections/sub-category.jsx/page-view";
 import ProductsPage from "../pages/products";
 import PrivateRoute from "./PrivateRoute";
+import AllCategories from "../pages/AllCategories";
+import Wishlist from "../pages/Wishlist";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +47,14 @@ const router = createBrowserRouter([
       {
         path: "products",
         element: <ProductsPage />,
+      },
+      {
+        path: "allcategories",
+        element: <AllCategories />,
+      },
+      {
+        path: "wishlist",
+        element: <Wishlist />,
       },
     ],
   },

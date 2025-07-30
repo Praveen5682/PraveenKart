@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { HiMenuAlt4, HiX } from "react-icons/hi";
 import {
   FiShoppingCart,
@@ -17,6 +17,7 @@ import getUserDetailsFromToken from "./getUserDetailsFromToken";
 import { useQuery } from "@tanstack/react-query";
 import { getCart } from "../services/components/cart/getCart";
 import SearchBar from "./Search.JSX";
+import { getWishlist } from "../services/components/wishlist/getWishlist";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,6 +26,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const userid = localStorage.getItem("userid");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { data } = useQuery({
     queryKey: ["carts", userid],
@@ -33,6 +35,14 @@ const Navbar = () => {
   });
 
   const cartData = data?.data;
+
+  const { data: wishlistResponse } = useQuery({
+    queryKey: ["wishlist", userid],
+    queryFn: () => getWishlist({ userid }),
+    refetchOnMount: "always",
+  });
+
+  const wishlistData = wishlistResponse?.data || [];
 
   useEffect(() => {
     const userDetails = getUserDetailsFromToken();
@@ -75,11 +85,39 @@ const Navbar = () => {
         />
 
         <div className="hidden md:flex items-center space-x-6 text-white relative">
-          <Link to="/products" className="hover:text-blue-500">
+          <Link
+            to="/"
+            className={`hover:text-blue-500 px-2 rounded-xl ${
+              location.pathname === "/" ? "bg-blue-500 text-white" : ""
+            }`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/products"
+            className={`hover:text-blue-500 px-2 rounded-xl ${
+              location.pathname === "/products" ? "bg-blue-500 text-white" : ""
+            }`}
+          >
             Products
           </Link>
-          <Link to="/categories" className="hover:text-blue-500">
+          <Link
+            to="/allcategories"
+            className={`hover:text-blue-500 px-2 rounded-xl ${
+              location.pathname === "/allcategories"
+                ? "bg-blue-500 text-white"
+                : ""
+            }`}
+          >
             Categories
+          </Link>
+          <Link to="/wishlist" className="relative hover:text-blue-500">
+            <FiHeart size={22} />
+            {wishlistData?.length > 0 && (
+              <span className="absolute -top-3 -right-2 w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full flex items-center justify-center">
+                {wishlistData.length}
+              </span>
+            )}
           </Link>
           <Link to="/cart" className="relative hover:text-blue-500">
             <FiShoppingCart size={22} />
