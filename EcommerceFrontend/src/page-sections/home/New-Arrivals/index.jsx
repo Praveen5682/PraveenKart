@@ -10,13 +10,14 @@ import produt8 from "../../../assets/frontend_assets/p_img28.png";
 import { FaRegHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getProduct } from "../../../services/components/products/getProduct";
+import { getnewarrivalsProduct } from "../../../services/components/newArrivals/getnewarrivalsProduct";
 const IMG_URL = import.meta.env.VITE_IMG_URL;
 
 const NewArrivalsSection = () => {
+
   const { data, isLoading } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => getProduct(),
+    queryKey: ["newarrivals"],
+    queryFn: () => getnewarrivalsProduct(),
   });
 
   const productsData = data?.response || [];
@@ -32,7 +33,12 @@ const NewArrivalsSection = () => {
   return (
     <div className="pb-0">
       <div className="container mx-auto px-6">
-        <p className="text-center pb-10 text-3xl">New Arrivals</p>
+        <div className="relative mb-10 flex items-center justify-center">
+          {/* Centered Title */}
+          <h2 className="text-3xl font-bold text-gray-800 text-center">
+            🆕 New Arrivals
+          </h2>
+        </div>{" "}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
           {sortedProducts.map((product) => (
             <div

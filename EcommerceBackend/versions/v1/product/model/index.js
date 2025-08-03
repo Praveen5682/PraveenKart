@@ -12,6 +12,7 @@ module.exports.createProduct = async (props) => {
     productgst,
     productimages = [],
     productspecification = [],
+    is_new = 0,
   } = props;
 
   try {
@@ -42,6 +43,7 @@ module.exports.createProduct = async (props) => {
         productprice,
         productoffer,
         productgst,
+        is_new,
       });
 
       console.log("Inserted Product ID:", insertedProductId); // Debugging log
@@ -146,6 +148,7 @@ module.exports.getProduct = async (props) => {
         "p.productgst",
         "p.productcategoryid",
         "p.productdescription",
+        "p.is_new",
         "p.created_at",
         "c.productcategoryname",
         "s.subcategoryname",

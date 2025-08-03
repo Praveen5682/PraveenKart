@@ -40,6 +40,7 @@ module.exports.createProduct = [
             })
           )
           .optional(),
+        is_new: Joi.number().optional(),
         created_at: Joi.date().optional(),
         updated_at: Joi.date().optional(),
       });

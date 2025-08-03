@@ -21,6 +21,7 @@ const AddProducts = () => {
     // thumbnailimage: null,
     productimages: [],
     specifications: [{ spec: "", details: "" }],
+    is_new: 0,
   });
 
   const {
@@ -34,6 +35,7 @@ const AddProducts = () => {
     gst,
     // thumbnailimage,
     productimages,
+    is_new,
   } = productData;
 
   // Mutation for adding the product
@@ -161,6 +163,7 @@ const AddProducts = () => {
     formData.append("productprice", price);
     formData.append("productoffer", offer);
     formData.append("productgst", gst);
+    formData.append("is_new", is_new);
 
     // Append specifications
     specifications.forEach((spec, index) => {
@@ -200,6 +203,7 @@ const AddProducts = () => {
       // thumbnailimage: null,
       productimages: [],
       specifications: [{ spec: "", details: "" }],
+      is_new: 0,
     });
   };
 
@@ -289,6 +293,21 @@ const AddProducts = () => {
             placeholder="Product Description"
             className="p-2 border rounded-md col-span-2"
           />
+
+          <div className="flex gap-2">
+            <input
+              type="checkbox"
+              name="is_new"
+              value={is_new}
+              onChange={(e) => {
+                setProductData((prev) => ({
+                  ...prev,
+                  is_new: e.target.checked ? 1 : 0,
+                }));
+              }}
+            />
+            <p className="text-xl text-blue-600">New Product ?</p>
+          </div>
         </div>
 
         {/* Specifications */}

@@ -43,4 +43,7 @@ router.use("/comment", require("../versions/v1/comments/router/index"));
 // Wiahlist
 router.use("/wishlist", require("../versions/v1/wishlist/router/index"));
 
+// New Arrivals
+router.use("/newarrivals", require("../versions/v1/newArrivals/router/index"));
+
 module.exports = router;
