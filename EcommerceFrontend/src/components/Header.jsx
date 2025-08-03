@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 import getUserDetailsFromToken from "./getUserDetailsFromToken";
 import { useQuery } from "@tanstack/react-query";
 import { getCart } from "../services/components/cart/getCart";
-import SearchBar from "./Search";
+import SearchBar from "./SearchBar";
 import { getWishlist } from "../services/components/wishlist/getWishlist";
 
 const Navbar = () => {
